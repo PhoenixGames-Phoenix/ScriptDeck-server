@@ -1,0 +1,25 @@
+{
+  "name": "scriptdeck-server",
+  "version": "0.0.1",
+  "description": "A Server to remotely execute javascript functions on your machine",
+  "main": "./src/index.js",
+  "scripts": {
+    "run": "cd ./src/ && node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PhoenixGames-Phoenix/ScriptDeck-server.git"
+  },
+  "author": "Phoenix_13",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PhoenixGames-Phoenix/ScriptDeck-server/issues"
+  },
+  "homepage": "https://github.com/PhoenixGames-Phoenix/ScriptDeck-server#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "open": "^7.3.0",
+    "prismjs": "^1.23.0",
+    "ws": "^7.4.1"
+  }
+}

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <script lang="javascript">
+            const cfgws = new WebSocket('ws://localhost:4655');
+
+            cfgws.onopen = (event) => {
+                cfgws.send('gridReq');
+                cfgws.send('scriptReq');
+            }
+            cfgws.onmessage = (event) => {
+                if (JSON.parse(event.data)) {
+                    const object = JSON.parse(event.data);
+                    switch (object.type) {
+                        case "grid":
+                            object.buttons.forEach(element => {
+                                const button = document.getElementsByClassName('ScriptButton')[element.pos];
+                                if (element.name == "") element.name = "No Name"
+                                const name = element.name.split(" ");
+                                button.innerHTML = `<i class="material-icons">${element.icon}</i>\n ${name[0] + " " + (name[1] || "")}`;
+                                button.setAttribute("onClick", `scriptbutton("${element.script}")`);
+                            });
+                            break;
+                        case "scriptList":
+                            for (let i = 0; i < object.list.length; i++) {
+                                const element = object.list[i];
+                                var item = document.createElement("p");
+                                item.setAttribute("class", "sciptListItem");
+                                item.innerHTML = '<i class="material-icons md-24" style="padding-left: 10px; padding-right: 10px;">extension</i>' + element + ' (<a class="link" href="localhost:4654/src?script=' + element + '">Source</a>)';
+                                document.getElementsByClassName('SelectScriptList')[0].appendChild(item);
+                            }
+                            break;
+                    
+                        default:
+                            window.alert('Client received unknwon data type!');
+                            break;
+                    }
+                }
+            }
+
+            const scriptws = new WebSocket('ws://localhost:4444');
+
+            async function scriptbutton(script) {
+                await scriptws.send(script);
+                scriptws.onerror = async (error) => {
+                    await window.alert(error);
+                }
+            }
+            async function IconInput(val) {
+                if (val != "") {
+                    document.getElementsByClassName("PreviewScriptButtonImage")[0].children[0].innerHTML = val; 
+                } else {
+                    document.getElementsByClassName("PreviewScriptButtonImage")[0].children[0].innerHTML = "description";
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <div class="TopBar">
+            <h1 class="Header">Websocket config</h1>
+            <button class="SettingButton"><i class="material-icons">settings</i></button>
+        </div>
+        <div class="MainMenu">
+            <div class="grid-container">
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item">
+                    <button class="ScriptButton"></button>
+                </div>
+            </div>
+            <div class="SideBar">
+                <div class="TopSideBar">
+                    <div class="PreviewScriptButtonImage">
+                        <i draggable="true" class="material-icons md-128">description</i>
+                    </div>
+                    <div class="InputDiv">
+                        <input class="NameInput" placeholder="Name">
+                        <input class="ScriptInput" placeholder="Script">
+                        <input class="IconInput" onInput="IconInput(this.value);" placeholder="Material Icon">
+                    </div>
+                </div>
+                <div class="SelectScriptList">
+                </div>
+            </div>
+        </div>
+        <style>
+            body {
+                font-family: Helvetica;
+                color: teal;
+                background-color: black;
+            }
+            .TopBar {
+                border-bottom-style: solid;
+                border-bottom-color: rgb(49, 49, 49);
+                border-bottom-width: 1px;
+                text-align: center;
+            }
+            .MainMenu {
+                overflow: hidden;
+            }
+            .Header {
+                text-align: center;
+                text-shadow: lightseagreen 1px 0 10px;
+                display: inline;
+            }
+            .grid-container {
+                padding-top: 5rem;
+                padding-right: 5rem;
+                padding-left: 5rem;
+                display: grid;
+                grid-template-columns: repeat(7, 8rem);
+                grid-template-rows: repeat(4, 8rem);
+                float: left;
+                grid-gap: 1rem;
+            }
+            .ScriptButton {
+                background-color: rgb(56, 54, 54);
+                font-size: 1.5rem;
+                color: teal;
+                padding: 2rem 2rem;
+                border-radius: 12px;
+                border: 2px solid rgb(56, 54, 54);
+                box-shadow: 0 0px 3px 0 rgb(0, 180, 180), 0 4px 5px 0 teal;
+                outline: none;
+                max-width: 100%;
+                max-height: 100%;
+            }
+            .ScriptButton:hover {
+                background-color: rgb(16, 94, 90);
+                border: 2px solid rgb(16, 94, 90);
+                color: rgb(0, 180, 180);
+                box-shadow: 0 0px 6px 0 rgb(0, 180, 180), 0 7px 10px 0 teal;
+                outline: none;
+            }
+            .ScriptButton:active {
+                background-color: rgb(16, 94, 90);
+                border: 2px solid rgb(16, 94, 90);
+                outline: none;
+                box-shadow: 0 0px 3px 0 rgb(0, 180, 180), 0 4px 5px 0 teal;
+                transform: translateY(2px);
+            }
+            .SettingButton {
+                background-color: black;
+                outline: none;
+                border: none;
+            }
+            .material-icons {
+                color: white;
+                font-size: 30px;
+            }
+            .material-icons.md-128 {
+                font-size: 128px;
+            }
+            .material-icons.md-24 {
+                font-size: 24px;
+            }
+            .SideBar {
+                border-left-color: rgb(49, 49, 49);
+                border-left-style: solid;
+                border-left-width: 1px;
+                padding-left: 5px;
+                overflow: hidden;
+                height: 100%;
+            }
+            .TopSideBar {
+                border-bottom-color: rgb(49, 49, 49);
+                border-bottom-style: solid;
+                border-bottom-width: 1px;
+            }
+            .PreviewScriptButtonImage {
+                display: inline-block;
+                max-width: 150px;
+            }
+            .InputDiv {
+                display: inline-block;
+            }
+            Input {
+                display: block;
+                margin-bottom: 1rem;
+                background-color: black;
+                border-right: none;
+                border-left: none;
+                border-top: none;
+                border-bottom: 1px solid lightgray;
+                color: white;
+                outline: none;
+            }
+            .SelectScriptButton {
+                display: inline;
+            }
+            .Link {
+                float: right;
+            }
+        </style>
+    </body>
+</html>

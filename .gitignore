@@ -1,3 +1,9 @@
+# data
+data
+
+# nvm
+.nvmrc
+
 # Logs
 logs
 *.log
