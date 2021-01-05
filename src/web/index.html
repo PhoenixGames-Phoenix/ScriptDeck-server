@@ -49,11 +49,20 @@
             }
             async function IconInput(val) {
                 if (val != "") {
-                    document.getElementsByClassName("PreviewScriptButtonImage")[0].children[0].innerHTML = val; 
+                    document.getElementById("PreviewScriptButtonImage").innerHTML = val;
                 } else {
-                    document.getElementsByClassName("PreviewScriptButtonImage")[0].children[0].innerHTML = "description";
+                    document.getElementById("PreviewScriptButtonImage").innerHTML = "description";
                 }
             }
+            async function NameInput(val) {
+                if (val != "") {
+                    const name = val.split(" ");
+                    document.getElementById("PreviewScriptButton").innerHTML = `<i class="material-icons" id="PreviewScriptButtonImage">${document.getElementById("PreviewScriptButtonImage").innerHTML || "description"}</i>\n${name[0] + " " + (name[1] || "")}`;
+                } else {
+                    document.getElementById("PreviewScriptButton").innerHTML = `<i class="material-icons" id="PreviewScriptButtonImage">${document.getElementById("PreviewScriptButtonImage").innerHTML || "description"}</i>\nNo Name`;
+                }
+
+            }        
         </script>
     </head>
     <body>
@@ -150,11 +159,12 @@
             </div>
             <div class="SideBar">
                 <div class="TopSideBar">
-                    <div class="PreviewScriptButtonImage">
-                        <i draggable="true" class="material-icons md-128">description</i>
-                    </div>
+                    <button class="ScriptButton" id="PreviewScriptButton">
+                        <i class="material-icons" id="PreviewScriptButtonImage">description</i>
+                        No Name
+                    </button>
                     <div class="InputDiv">
-                        <input class="NameInput" placeholder="Name">
+                        <input class="NameInput" oninput="NameInput(this.value);" placeholder="Name">
                         <input class="ScriptInput" placeholder="Script">
                         <input class="IconInput" onInput="IconInput(this.value);" placeholder="Material Icon">
                     </div>
@@ -202,8 +212,8 @@
                 border: 2px solid rgb(56, 54, 54);
                 box-shadow: 0 0px 3px 0 rgb(0, 180, 180), 0 4px 5px 0 teal;
                 outline: none;
-                max-width: 100%;
-                max-height: 100%;
+                max-width: 8rem;
+                max-height: 8rem;
             }
             .ScriptButton:hover {
                 background-color: rgb(16, 94, 90);
@@ -246,10 +256,6 @@
                 border-bottom-color: rgb(49, 49, 49);
                 border-bottom-style: solid;
                 border-bottom-width: 1px;
-            }
-            .PreviewScriptButtonImage {
-                display: inline-block;
-                max-width: 150px;
             }
             .InputDiv {
                 display: inline-block;
