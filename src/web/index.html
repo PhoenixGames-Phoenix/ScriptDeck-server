@@ -3,6 +3,7 @@
     <head>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <script lang="javascript">
+            var globalGrid = {"type": "grid", "buttons": []};
             const cfgws = new WebSocket('ws://localhost:4655');
 
             cfgws.onopen = (event) => {
@@ -14,6 +15,7 @@
                     const object = JSON.parse(event.data);
                     switch (object.type) {
                         case "grid":
+                            globalGrid = JSON.parse(event.data);
                             object.buttons.forEach(element => {
                                 const button = document.getElementsByClassName('ScriptButton')[element.pos];
                                 if (element.name == "") element.name = "No Name"
@@ -36,6 +38,15 @@
                             window.alert('Client received unknwon data type!');
                             break;
                     }
+                } else if (event.data.startsWith("gridUpdate")) {
+                    object = JSON.parse(event.data.substring(11));
+                    object.buttons.forEach(element => {
+                        const button = document.getElementsByClassName('ScriptButton')[element.pos];
+                        if (element.name == "") element.name = "No Name"
+                        const name = element.name.split(" ");
+                        button.innerHTML = `<i class="material-icons">${element.icon}</i>\n ${name[0] + " " + (name[1] || "")}`;
+                        button.setAttribute("onClick", `scriptbutton("${element.script}")`);
+                    });
                 }
             }
 
@@ -57,116 +68,160 @@
             async function NameInput(val) {
                 if (val != "") {
                     const name = val.split(" ");
-                    document.getElementById("PreviewScriptButton").innerHTML = `<i class="material-icons" id="PreviewScriptButtonImage">${document.getElementById("PreviewScriptButtonImage").innerHTML || "description"}</i>\n${name[0] + " " + (name[1] || "")}`;
+                    document.getElementsByClassName("PreviewScriptButton")[0].innerHTML = `<i class="material-icons" id="PreviewScriptButtonImage">${document.getElementById("PreviewScriptButtonImage").innerHTML || "description"}</i>\n${name[0] + " " + (name[1] || "")}`;
                 } else {
-                    document.getElementById("PreviewScriptButton").innerHTML = `<i class="material-icons" id="PreviewScriptButtonImage">${document.getElementById("PreviewScriptButtonImage").innerHTML || "description"}</i>\nNo Name`;
+                    document.getElementsByClassName("PreviewScriptButton")[0].innerHTML = `<i class="material-icons" id="PreviewScriptButtonImage">${document.getElementById("PreviewScriptButtonImage").innerHTML || "description"}</i>\nNo Name`;
                 }
 
-            }        
+            }
+            function allowDrop(event) {
+                event.preventDefault();
+            }
+            function buttonDrag(event) {
+
+            }
+            function buttonDrop(event, id) {
+                event.preventDefault();
+                event.target.innerHTML = document.getElementsByClassName("PreviewScriptButton")[0].innerHTML;
+                let additionalData = {
+                    "pos": id,
+                    "name": document.getElementsByClassName("NameInput")[0].value || "",
+                    "icon": document.getElementsByClassName("IconInput")[0].value || "",
+                    "script": document.getElementsByClassName("ScriptInput")[0].value || "",
+                }
+                // This isn't working, it's just pushing the additionalData even if it has the same pos
+                if (() => {
+                    let i = 0;
+                    globalGrid.buttons.forEach((button) => {
+                        if (button.pos == additionalData.pos) {
+                            globalGrid.buttons[i] = additionalData;
+                            return false;
+                        }
+                        i++;
+                    })
+                    return true;
+                }) {
+                    globalGrid.buttons.push(additionalData);
+                }
+                cfgws.send("gridPost " + JSON.stringify(globalGrid));
+                document.getElementsByClassName("NameInput")[0].value = "";
+                document.getElementsByClassName("IconInput")[0].value = "";
+                document.getElementsByClassName("ScriptInput")[0].value = "";
+                NameInput("");
+                IconInput("");
+            }
+            function reloadScripts() {
+                cfgws.send("reloadReq");
+                const scriptTextList = document.getElementsByClassName("SelectScriptList")[0].children;
+                for (let j = 0; j < scriptTextList.length; j++) {
+                    scriptTextList[j].remove();
+                }
+                cfgws.send('scriptReq');
+            }
         </script>
     </head>
     <body>
         <div class="TopBar">
             <h1 class="Header">Websocket config</h1>
-            <button class="SettingButton"><i class="material-icons">settings</i></button>
+            <button class="ReloadButton headerbutton" onclick="reloadScripts()"><i class="material-icons">replay</i></button>
         </div>
         <div class="MainMenu">
             <div class="grid-container">
-                <div class="grid-item">
+                <div class="grid-item" id="0" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="1" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="2" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="3" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="4" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="5" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="6" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="7" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="8" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="9" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="10" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="11" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="12" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="13" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="14" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="15" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="16" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="17" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="18" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="19" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="20" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="21" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="22" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="23" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="24" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="25" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="26" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" id="27" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
                     <button class="ScriptButton"></button>
                 </div>
             </div>
             <div class="SideBar">
                 <div class="TopSideBar">
-                    <button class="ScriptButton" id="PreviewScriptButton">
+                    <div class="PreviewScriptButton" draggable="true" ondragstart="buttonDrag(event)">
                         <i class="material-icons" id="PreviewScriptButtonImage">description</i>
                         No Name
-                    </button>
+                    </div>  
                     <div class="InputDiv">
                         <input class="NameInput" oninput="NameInput(this.value);" placeholder="Name">
-                        <input class="ScriptInput" placeholder="Script">
                         <input class="IconInput" onInput="IconInput(this.value);" placeholder="Material Icon">
+                        <input class="ScriptInput" placeholder="Script">
                     </div>
                 </div>
                 <div class="SelectScriptList">
@@ -202,6 +257,7 @@
                 grid-template-rows: repeat(4, 8rem);
                 float: left;
                 grid-gap: 1rem;
+                margin-bottom: 1rem;
             }
             .ScriptButton {
                 background-color: rgb(56, 54, 54);
@@ -212,8 +268,8 @@
                 border: 2px solid rgb(56, 54, 54);
                 box-shadow: 0 0px 3px 0 rgb(0, 180, 180), 0 4px 5px 0 teal;
                 outline: none;
-                max-width: 8rem;
-                max-height: 8rem;
+                width: 128px;
+                height: 128px;
             }
             .ScriptButton:hover {
                 background-color: rgb(16, 94, 90);
@@ -244,6 +300,10 @@
             .material-icons.md-24 {
                 font-size: 24px;
             }
+            .headerbutton {
+                background-color: black;
+                border: none;
+            }
             .SideBar {
                 border-left-color: rgb(49, 49, 49);
                 border-left-style: solid;
@@ -259,6 +319,8 @@
             }
             .InputDiv {
                 display: inline-block;
+                margin-left: 1rem;
+                width: 70%;
             }
             Input {
                 display: block;
@@ -270,12 +332,29 @@
                 border-bottom: 1px solid lightgray;
                 color: white;
                 outline: none;
+                width: 100%;
             }
             .SelectScriptButton {
                 display: inline;
             }
             .Link {
                 float: right;
+            }
+            .PreviewScriptButton {
+                display: inline-block;
+                text-align: center;
+                font-size: 1.5rem;
+                background-color: rgb(56, 54, 54);
+                border-radius: 12px;
+                border: 2px solid rgb(56, 54, 54);
+                box-shadow: 0 0px 3px 0 rgb(0, 180, 180), 0 4px 5px 0 teal;
+                outline: none;
+                color: teal;
+                padding: 2rem 2rem;
+                margin-bottom: 5px;
+                margin-top: 5px;
+                width: 64px;
+                height: 64px;
             }
         </style>
     </body>

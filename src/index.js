@@ -4,6 +4,12 @@ const fs = require('fs');
 const open = require('open');
 const prism = require('prismjs');
 
+function broadcast(sockets, data) {
+    sockets.forEach((socket) => {
+        socket.send(data);
+    })
+}
+
 if (!fs.existsSync('./data/')) {
     fs.mkdirSync('./data/');
     fs.writeFileSync('./data/grid.json', '{ "type": "grid", "buttons": [] }');
@@ -12,19 +18,26 @@ if (!fs.existsSync('./scripts/')) {
     fs.mkdirSync('./scripts/');
 }
 
-const scriptsDir = fs.readdirSync('./scripts/').filter((file) => file.endsWith('.js'));
-const scriptsList = {type: "", list: []};
+let scriptsDir = fs.readdirSync('./scripts/').filter((file) => file.endsWith('.js'));
+let scriptsList = {type: "", list: []};
 scriptsList.type = "scriptList";
-const scripts = new Map();
+let scripts = new Map();
 
-let i = 0;
-for (const file of scriptsDir) {
-    const script = require(`./scripts/${file}`);
-    scripts.set(script.name, script);
-    scriptsList.list[i] = script.name;
-    i++;
+function loadScripts() {
+    scriptsDir = fs.readdirSync('./scripts/').filter((file) => file.endsWith('.js'));
+    scriptsList = {type: "", list: []};
+    scriptsList.type = "scriptList";
+    scripts = new Map();
+    let i = 0;
+    for (const file of scriptsDir) {
+        const script = require(`./scripts/${file}`);
+        scripts.set(script.name, script);
+        scriptsList.list[i] = script.name;
+        i++;
+    }
+    console.log("[INFO] Scripts loaded! Loaded " + i + " Script(s)");
 }
-console.log("[INFO] Scripts loaded! Loaded " + i + " Script(s)");
+loadScripts();
 
 const ControlApp = express();
 
@@ -57,21 +70,37 @@ const cfgws = new ws.Server({
     port: 4655
 });
 
+let sockets = [];
 cfgws.on('connection', (socket, req) => {
+    sockets.push(socket);
+    socket.on("close", () => {
+        sockets = sockets.filter(s => s !== socket);
+    })
     socket.on("message", (data) => {
-        switch (data) {
-            case "gridReq":
-                const grid = fs.readFileSync('./data/grid.json');
-                console.log("[INFO] Grid Request from " + req.connection.remoteAddress);
-                socket.send(grid.toString());
-                break;
-            case "scriptReq":
-                socket.send(JSON.stringify(scriptsList));
-                console.log("[INFO] Script List Request from " + req.connection.remoteAddress);
-                break;
-            default:
-                socket.send("This is the Config Websocket Server for ScriptDeck. If you want to interact with this websocket, use the Web Interface on Port 4654");
-                break;
+        if (data.startsWith("gridReq")) {
+            const grid = fs.readFileSync('./data/grid.json');
+            console.log("[INFO] Grid Request from " + req.connection.remoteAddress);
+            socket.send(grid.toString());
+        } else if (data.startsWith("scriptReq")) {
+            socket.send(JSON.stringify(scriptsList));
+            console.log("[INFO] Script List Request from " + req.connection.remoteAddress);
+        } else if (data.startsWith("gridPost")) {
+            const PostData = data.substring(9);
+            console.log("[INFO] Script Post Reqeust from " + req.connection.remoteAddress);
+            console.log("[INFO] Data: " + PostData);
+            fs.truncateSync("./data/grid.json", 0);
+            fs.writeFileSync("./data/grid.json", PostData);
+            const newgrid = fs.readFileSync('./data/grid.json');
+            broadcast(sockets, "gridUpdate " + newgrid);
+        } else if (data.startsWith("reloadReq")) {
+            scriptsDir = fs.readdirSync('./scripts/').filter((file) => file.endsWith('.js'));
+            for (const file of scriptsDir) {
+                const script = delete require.cache[require.resolve("./scripts/" + file)];
+            }
+            loadScripts();
+            socket.send("reloadFinished");
+        } else {
+            socket.send("This is the Config Websocket Server for ScriptDeck. If you want to interact with this websocket, use the Web Interface on Port 4654");
         }
     });
 })
