@@ -89,20 +89,22 @@
                     "icon": document.getElementsByClassName("IconInput")[0].value || "",
                     "script": document.getElementsByClassName("ScriptInput")[0].value || "",
                 }
-                // This isn't working, it's just pushing the additionalData even if it has the same pos
-                if (() => {
-                    let i = 0;
-                    globalGrid.buttons.forEach((button) => {
-                        if (button.pos == additionalData.pos) {
-                            globalGrid.buttons[i] = additionalData;
-                            return false;
-                        }
-                        i++;
-                    })
-                    return true;
-                }) {
+                // ###################################
+                // Temporary Solution, will be changed
+                let push = true;
+                let i = 0;
+                globalGrid.buttons.forEach((button) => {
+                    if (button.pos == additionalData.pos) {
+                        globalGrid.buttons[i] = additionalData;
+                        push = false;
+                    }
+                    i++;
+                });
+                if (push) {
                     globalGrid.buttons.push(additionalData);
                 }
+                // ###################################
+
                 cfgws.send("gridPost " + JSON.stringify(globalGrid));
                 document.getElementsByClassName("NameInput")[0].value = "";
                 document.getElementsByClassName("IconInput")[0].value = "";
