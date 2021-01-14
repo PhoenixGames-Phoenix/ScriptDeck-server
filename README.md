@@ -1,6 +1,6 @@
-# ScriptDeck-server
+# ScriptDeck
 
-The ScriptDeck server is a way to remotely execute your own javascript functions on your machine. ScriptDeck comes with a web server and 2 Websockets which host a configuration webpage which will make it possible to easily configure your own buttons using pre-written or your own functions.
+The ScriptDeck is a way to remotely execute your own javascript functions on your machine. ScriptDeck comes with a web server and 2 Websockets which host a configuration webpage which make it possible to easily configure your own buttons using pre-written or your own functions.
 
 ## WIP
 
@@ -16,6 +16,6 @@ This Project is still Work In Progess. You can help out by opening pull requests
 ## TO-DO
 
 - [x] Functioning Drag and Drop configuration
-- [Mobile App](https://github.com/PhoenixGames-Phoenix/ScriptDeck-Client) (on a different repository)
+- Mobile App
 - Merge the 2 Websockets
 - Folders

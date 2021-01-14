@@ -4,7 +4,7 @@
   "description": "A Server to remotely execute javascript functions on your machine",
   "main": "./src/index.js",
   "scripts": {
-    "run": "cd ./src/ && node index.js"
+    "server": "cd ./server/ && node index.js"
   },
   "repository": {
     "type": "git",
