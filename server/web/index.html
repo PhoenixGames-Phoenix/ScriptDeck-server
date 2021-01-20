@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <title>ScriptDeck</title>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <script lang="javascript">
             var globalGrid = {"type": "grid", "buttons": []};
@@ -11,7 +12,7 @@
                 cfgws.send('scriptReq');
             }
             cfgws.onmessage = (event) => {
-                if (JSON.parse(event.data)) {
+                if (IsJsonString(event.data)) {
                     const object = JSON.parse(event.data);
                     switch (object.type) {
                         case "grid":
@@ -21,7 +22,7 @@
                                 if (element.name == "") element.name = "No Name"
                                 const name = element.name.split(" ");
                                 button.innerHTML = `<i class="material-icons">${element.icon}</i>\n ${name[0] + " " + (name[1] || "")}`;
-                                button.setAttribute("onClick", `scriptbutton("${element.script}")`);
+                                button.setAttribute("onClick", `scriptbutton("${element.script}", "${element.args}")`);
                             });
                             break;
                         case "scriptList":
@@ -45,15 +46,33 @@
                         if (element.name == "") element.name = "No Name"
                         const name = element.name.split(" ");
                         button.innerHTML = `<i class="material-icons">${element.icon}</i>\n ${name[0] + " " + (name[1] || "")}`;
-                        button.setAttribute("onClick", `scriptbutton("${element.script}")`);
+                        button.setAttribute("onClick", `scriptbutton("${element.script}", "${element.args || null}")`);
                     });
                 }
             }
 
+            cfgws.close = (event) => {
+                window.alert("Connection lost! Restart the server and reload this page!");
+            }
+
+            function IsJsonString(str) {
+                try {
+                    JSON.parse(str);
+                } catch (e) {
+                    return false;
+                }
+                return true;
+            }
+
             const scriptws = new WebSocket('ws://localhost:4444');
 
-            async function scriptbutton(script) {
-                await scriptws.send(script);
+            async function scriptbutton(script, args) {
+                const data = {
+                    "script": script,
+                    "args": args,
+                }
+                console.log("[DEBUG] " + JSON.stringify(data).toString());
+                await scriptws.send(JSON.stringify(data).toString());
                 scriptws.onerror = async (error) => {
                     await window.alert(error);
                 }
@@ -88,6 +107,7 @@
                     "name": document.getElementsByClassName("NameInput")[0].value || "",
                     "icon": document.getElementsByClassName("IconInput")[0].value || "",
                     "script": document.getElementsByClassName("ScriptInput")[0].value || "",
+                    "args": document.getElementsByClassName("ArgumentInput")[0].value || "",
                 }
                 // ###################################
                 // Temporary Solution, will be changed
@@ -109,6 +129,7 @@
                 document.getElementsByClassName("NameInput")[0].value = "";
                 document.getElementsByClassName("IconInput")[0].value = "";
                 document.getElementsByClassName("ScriptInput")[0].value = "";
+                document.getElementsByClassName("ArgumentInput")[0].value = "";
                 NameInput("");
                 IconInput("");
             }
@@ -224,6 +245,7 @@
                         <input class="NameInput" oninput="NameInput(this.value);" placeholder="Name">
                         <input class="IconInput" onInput="IconInput(this.value);" placeholder="Material Icon">
                         <input class="ScriptInput" placeholder="Script">
+                        <input class="ArgumentInput" placeholder="Argument">
                     </div>
                 </div>
                 <div class="SelectScriptList">

@@ -112,11 +112,18 @@ const scriptws = new ws.Server({
 scriptws.on('connection', (socket, req) => {
     console.log('[INFO] ScriptWS connection from ' + req.connection.remoteAddress);
     socket.on('message', (data) => {
-        if (!scripts.has(data)) return socket.emit('error', new Error('404: Unknwon Script!'));
-        const script = scripts.get(data);
+        console.log(data);
+        data = JSON.parse(data.toString());
+        if (!scripts.has(data.script)) return socket.emit('error', new Error('404: Unknwon Script!'));
+        const script = scripts.get(data.script);
         try {
-            console.log('[INFO] Script "' + data + '" executed from ' + req.connection.remoteAddress);
-            script.execute();
+            console.log('[INFO] Script "' + data.script + '" executed from ' + req.connection.remoteAddress);
+            if (data.args) {
+                script.execute(data.args);
+            } else {
+                script.execute();
+            }
+            
         } catch (error) {
             console.error(error);
             socket.emit('error', new Error('404: Unknwon Script!'));

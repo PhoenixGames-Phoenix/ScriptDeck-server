@@ -1,6 +1,6 @@
 module.exports = {
     name: "hello_world",
-    execute() {
+    async execute() {
         console.log('[hello_world] Hello World!');
     }
 }
