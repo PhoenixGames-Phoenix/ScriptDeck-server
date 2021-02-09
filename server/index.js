@@ -2,7 +2,6 @@ const ws = require('ws');
 const express = require('express');
 const fs = require('fs');
 const open = require('open');
-const prism = require('prismjs');
 
 function broadcast(sockets, data) {
     sockets.forEach((socket) => {
@@ -43,7 +42,7 @@ const ControlApp = express();
 
 ControlApp.use(express.static('./web/'));
 
-ControlApp.get('/scripts/:script', function (req, res, next) {
+ControlApp.get('/scripts/:script', function (req, res) {
     const src = fs.readFileSync('./scripts/' + req.params.script + '.js').toString();
     res.send(src);
 })
@@ -95,7 +94,7 @@ cfgws.on('connection', (socket, req) => {
         } else if (data.startsWith("reloadReq")) {
             scriptsDir = fs.readdirSync('./scripts/').filter((file) => file.endsWith('.js'));
             for (const file of scriptsDir) {
-                const script = delete require.cache[require.resolve("./scripts/" + file)];
+                delete require.cache[require.resolve("./scripts/" + file)];
             }
             loadScripts();
             socket.send("reloadFinished");
@@ -129,7 +128,7 @@ scriptws.on('connection', (socket, req) => {
             socket.emit('error', new Error('404: Unknwon Script!'));
         }
     })
-    socket.on('error', (ws, error) => {
+    socket.on('error', () => {
     })
     socket.on('close', (code, reason) => {
         console.log('[INFO] ' + req.connection.remoteAddress + ' closed connection with code ' + code + ' because of "' + reason + '"')
