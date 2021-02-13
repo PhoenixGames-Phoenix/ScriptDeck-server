@@ -9,6 +9,34 @@ function broadcast(sockets, data) {
     })
 }
 
+// ScriptDeck API for Scripts
+module.exports = {
+    // Sends raw websocket data to every connected client
+    async rawWebsocket(data) {
+        broadcast(sockets, data);
+    },
+    // Sets the state of every button that uses the specified script.
+    // active:
+    //  true = disables button and displays it as active
+    //  false = enables button and displays it as inactive
+    async setButtonState(active, script) {
+        const data = {
+            type: "setButtonState",
+            script: script,
+            state: active,
+        }
+        broadcast(sockets, JSON.stringify(data));
+    },
+    // Sends an alert to all connected clients.
+    async sendMessage(message) {
+        const data = {
+            type: "message",
+            message: message
+        }
+        broadcast(sockets, JSON.stringify(data));
+    }
+}
+
 if (!fs.existsSync('./data/')) {
     fs.mkdirSync('./data/');
     fs.writeFileSync('./data/grid.json', '{ "type": "grid", "buttons": [] }');
