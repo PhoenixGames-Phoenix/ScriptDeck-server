@@ -17,7 +17,7 @@ This Project is still Work In Progess. You can help out by opening pull requests
 
 ## TO-DO
 
-- [x] Functioning Drag and Drop configuration
-- Mobile App
-- Merge the 2 Websockets
-- Folders
+- [ ] Documentation (High Priority)
+- [ ] Mobile App
+- [ ] Merge the 2 Websockets
+- [ ] Folders
