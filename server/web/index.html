@@ -23,7 +23,7 @@
                                 const name = element.name.split(" ");
                                 button.innerHTML = `<i class="material-icons">${element.icon}</i>\n ${name[0] + " " + (name[1] || "")}`;
                                 button.setAttribute("onClick", `scriptbutton("${element.script}", "${element.args}")`);
-                                button.setAttribute("data-script", `${element.script}`);
+                                button.setAttribute("data-script", element.script);
                             });
                             break;
                         case "scriptList":
@@ -49,6 +49,23 @@
                                         button.disabled = false;
                                     }
                                 });
+                            }
+                            break;
+                        case "setButtonStateID":
+                            const idMap = new Map();
+                            const IDbuttons = document.getElementsByClassName("ScriptButton");
+                            for (i = 0; i < IDbuttons.length; i++) {
+                                idMap.set(IDbuttons[i].parentNode.id, IDbuttons[i]);
+                            }
+                            let button = idMap.get(object.id);
+                            if (object.state) {
+                                button.classList.add("active");
+                                button.disabled = true;
+                            } else {
+                                if (button.classList.contains("active")) {
+                                    button.classList.remove("active");
+                                    button.disabled = false;
+                                }
                             }
                             break;
                         case "message":

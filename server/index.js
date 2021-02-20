@@ -2,6 +2,7 @@ const ws = require('ws');
 const express = require('express');
 const fs = require('fs');
 const open = require('open');
+let grid = fs.readFileSync('./data/grid.json');
 
 function broadcast(sockets, data) {
     sockets.forEach((socket) => {
@@ -9,7 +10,7 @@ function broadcast(sockets, data) {
     })
 }
 
-// ScriptDeck API for Scripts
+// ScriptDeck API for Scripts and Plugins
 module.exports = {
     // Sends raw websocket data to every connected client
     async rawWebsocket(data) {
@@ -27,6 +28,18 @@ module.exports = {
         }
         broadcast(sockets, JSON.stringify(data));
     },
+    async SetButtonStateById(active, ID) {
+        const data = {
+            type: "setButtonStateID",
+            id: ID,
+            state: active
+        }
+        broadcast(sockets, JSON.stringify(data));
+    },
+    // Gets Grid of Buttons as Object
+    async getGrid() {
+        return grid;   
+    },
     // Sends an alert to all connected clients.
     async sendMessage(message) {
         const data = {
@@ -43,6 +56,9 @@ if (!fs.existsSync('./data/')) {
 }
 if (!fs.existsSync('./scripts/')) {
     fs.mkdirSync('./scripts/');
+}
+if (!fs.existsSync('./plugins/')) {
+    fs.mkdirSync('./plugins/');
 }
 
 let scriptsDir = fs.readdirSync('./scripts/').filter((file) => file.endsWith('.js'));
@@ -65,6 +81,22 @@ function loadScripts() {
     console.log("[INFO] Scripts loaded! Loaded " + i + " Script(s)");
 }
 loadScripts();
+
+let pluginsDir = fs.readdirSync('./plugins/').filter((file) => file.endsWith('.js'));
+let plugins = new Map();
+
+function loadPlugins() {
+    pluginsDir = fs.readdirSync('./plugins/').filter((file) => file.endsWith('.js'));
+    plugins = new Map();
+    let i = 0;
+    for (const file of pluginsDir) {
+        const plugin = require(`./plugins/${file}`);
+        plugin.execute();
+        plugins.set(plugin.name, plugin);
+        i++;
+    }
+}
+loadPlugins();
 
 const ControlApp = express();
 
@@ -105,7 +137,7 @@ cfgws.on('connection', (socket, req) => {
     })
     socket.on("message", (data) => {
         if (data.startsWith("gridReq")) {
-            const grid = fs.readFileSync('./data/grid.json');
+            grid = fs.readFileSync('./data/grid.json');
             console.log("[INFO] Grid Request from " + req.connection.remoteAddress);
             socket.send(grid.toString());
         } else if (data.startsWith("scriptReq")) {
@@ -117,8 +149,8 @@ cfgws.on('connection', (socket, req) => {
             console.log("[INFO] Data: " + PostData);
             fs.truncateSync("./data/grid.json", 0);
             fs.writeFileSync("./data/grid.json", PostData);
-            const newgrid = fs.readFileSync('./data/grid.json');
-            broadcast(sockets, "gridUpdate " + newgrid);
+            grid = fs.readFileSync('./data/grid.json');
+            broadcast(sockets, "gridUpdate " + grid);
         } else if (data.startsWith("reloadReq")) {
             scriptsDir = fs.readdirSync('./scripts/').filter((file) => file.endsWith('.js'));
             for (const file of scriptsDir) {
@@ -139,7 +171,7 @@ const scriptws = new ws.Server({
 scriptws.on('connection', (socket, req) => {
     console.log('[INFO] ScriptWS connection from ' + req.connection.remoteAddress);
     socket.on('message', (data) => {
-        console.log(data);
+        // console.log(data);
         data = JSON.parse(data.toString());
         if (!scripts.has(data.script)) return socket.emit('error', new Error('404: Unknwon Script!'));
         const script = scripts.get(data.script);
