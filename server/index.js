@@ -150,7 +150,11 @@ cfgws.on('connection', (socket, req) => {
             fs.truncateSync("./data/grid.json", 0);
             fs.writeFileSync("./data/grid.json", PostData);
             grid = fs.readFileSync('./data/grid.json');
-            broadcast(sockets, "gridUpdate " + grid);
+            const updateData = {
+                type: "gridUpdate",
+                grid: grid
+            }
+            broadcast(sockets, JSON.stringify(updateData));
         } else if (data.startsWith("reloadReq")) {
             scriptsDir = fs.readdirSync('./scripts/').filter((file) => file.endsWith('.js'));
             for (const file of scriptsDir) {

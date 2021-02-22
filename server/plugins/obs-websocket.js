@@ -17,7 +17,10 @@ module.exports = {
     // Initial Execution function.
     // Executed on runtime
     async execute() {
-       obs.connect({address: config.host + ':' + config.port});
+       obs.connect({address: config.host + ':' + config.port}, (err) => {
+           console.log("[WARN] Connection to OBS Studio failed! Are your settings correct?");
+           console.log("[WARN] Error: " + err.name);
+       });
 
        obs.on('ConnectionClosed', async (data) => {
            await sendMessage('Connection to OBS Lost');

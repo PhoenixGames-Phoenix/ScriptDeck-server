@@ -26,6 +26,15 @@
                                 button.setAttribute("data-script", element.script);
                             });
                             break;
+                        case "gridUpdate":
+                            object.grid.buttons.forEach(element => {
+                                const button = document.getElementsByClassName('ScriptButton')[element.pos];
+                                if (element.name == "") element.name = "No Name"
+                                const name = element.name.split(" ");
+                                button.innerHTML = `<i class="material-icons">${element.icon}</i>\n ${name[0] + " " + (name[1] || "")}`;
+                                button.setAttribute("onClick", `scriptbutton("${element.script}", "${element.args || null}")`);
+                            });
+                            break;
                         case "scriptList":
                             for (let i = 0; i < object.list.length; i++) {
                                 const element = object.list[i];
@@ -75,15 +84,6 @@
                             window.alert('Client received unknwon data type!');
                             break;
                     }
-                } else if (event.data.startsWith("gridUpdate")) {
-                    object = JSON.parse(event.data.substring(11));
-                    object.buttons.forEach(element => {
-                        const button = document.getElementsByClassName('ScriptButton')[element.pos];
-                        if (element.name == "") element.name = "No Name"
-                        const name = element.name.split(" ");
-                        button.innerHTML = `<i class="material-icons">${element.icon}</i>\n ${name[0] + " " + (name[1] || "")}`;
-                        button.setAttribute("onClick", `scriptbutton("${element.script}", "${element.args || null}")`);
-                    });
                 }
             }
 
