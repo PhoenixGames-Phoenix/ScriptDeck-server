@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism-okaidia.css" integrity="sha512-lTmd0bFMM2Ttm/S8V5dywYNiJaSyF5PILZosvAIzW4EJ7JLEYflk9ImyYIxw5KlFz7e9ZCJN53rnvPnefD240w==" crossorigin="anonymous" />
+        <script>
+            let script = "";
+            window.onload = () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                script = urlParams.get('script');
+                document.getElementsByClassName("Title")[0].innerHTML = "Source Code for " + script;
+                ReRender(script);
+            }
+            async function ReRender(script) {
+                const pre = await document.getElementById("pre");
+                pre.innerHTML = '<code id="jsBox" class="language-javascript"></code>';
+                const jsBox = await document.getElementById("jsBox");
+                jsBox.innerText = await getScript(script);
+                jsBox.innerHTML = await Prism.highlight(pre.innerText,Prism.languages.javascript,'javascript');
+            }
+            async function getScript(script) {
+                let response = await fetch(`http://localhost:4654/scripts/${script}`)
+                let text = await Promise.resolve(response.text());
+                return text;
+            }
+            async function setPage(page) {
+                var loc = window.location.href.replace(`src.html?script=${script}`, 'index.html')
+                window.location = loc;
+            }
+        </script>
+    </head>
+    <body>
+        <button onclick="setPage('index.html')"><i class="material-icons">reply</i></button>
+        <h1 class="Title"></h1>
+        <pre id="pre"><code id="jsBox" class="language-javascript"></code></pre>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.js" integrity="sha512-S2+nGI85suJO7CXXZDiu8ygn+SOGUddvdqa2qu04j2D11jSOjWw8sA9n7EDX95J6aZnQImsqDuO/ItqCrwWDCg==" crossorigin="anonymous"></script>
+        <style>
+            html {
+                background-color: black;
+                font-family: Helvetica;
+                text-align: center;
+                color: teal;
+                text-shadow: lightseagreen 1px 0 10px;
+            }
+            button {
+                background-color: black;
+                color: teal;
+                border: none;
+                outline: none;
+            }
+            button:focus {
+                outline: none;
+            }
+        </style>
+    </body>
+</html>

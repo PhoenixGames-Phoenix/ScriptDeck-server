@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>ScriptDeck</title>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <script lang="javascript">
+            var globalGrid = {"type": "grid", "buttons": []};
+            const cfgws = new WebSocket('ws://localhost:4655');
+
+            cfgws.onopen = (event) => {
+                cfgws.send('gridReq');
+                cfgws.send('scriptReq');
+            }
+            cfgws.onmessage = (event) => {
+                if (IsJsonString(event.data)) {
+                    const object = JSON.parse(event.data);
+                    switch (object.type) {
+                        case "grid":
+                            globalGrid = JSON.parse(event.data);
+                            object.buttons.forEach(element => {
+                                const button = document.getElementsByClassName('ScriptButton')[element.pos];
+                                if (element.name == "") element.name = "No Name"
+                                const name = element.name.split(" ");
+                                button.innerHTML = `<i class="material-icons">${element.icon}</i>\n ${name[0] + " " + (name[1] || "")}`;
+                                button.setAttribute("onClick", `scriptbutton("${element.script}", "${element.args}")`);
+                                button.setAttribute("data-script", element.script);
+                            });
+                            break;
+                        case "gridUpdate":
+                            object.grid.buttons.forEach(element => {
+                                const button = document.getElementsByClassName('ScriptButton')[element.pos];
+                                if (element.name == "") element.name = "No Name"
+                                const name = element.name.split(" ");
+                                button.innerHTML = `<i class="material-icons">${element.icon}</i>\n ${name[0] + " " + (name[1] || "")}`;
+                                button.setAttribute("onClick", `scriptbutton("${element.script}", "${element.args || null}")`);
+                            });
+                            break;
+                        case "scriptList":
+                            for (let i = 0; i < object.list.length; i++) {
+                                const element = object.list[i];
+                                var item = document.createElement("p");
+                                item.setAttribute("class", "sciptListItem");
+                                item.innerHTML = '<i class="material-icons md-24" style="padding-left: 10px; padding-right: 10px;">extension</i>' + element + ' (<a class="link" href="src.html?script=' + element + '">Source</a>)';
+                                document.getElementsByClassName('SelectScriptList')[0].appendChild(item);
+                            }
+                            break;
+                        case "setButtonState":
+                            const buttons = document.querySelectorAll(`[data-script="${object.script}"]`);
+                            if (object.state) {
+                                buttons.forEach(button => {
+                                    button.classList.add("active")
+                                    button.disabled = true;
+                                });   
+                            } else {
+                                buttons.forEach(button => {
+                                    if (button.classList.contains("active")) {
+                                        button.classList.remove("active");
+                                        button.disabled = false;
+                                    }
+                                });
+                            }
+                            break;
+                        case "setButtonStateID":
+                            const idMap = new Map();
+                            const IDbuttons = document.getElementsByClassName("ScriptButton");
+                            for (i = 0; i < IDbuttons.length; i++) {
+                                idMap.set(IDbuttons[i].parentNode.id, IDbuttons[i]);
+                            }
+                            let button = idMap.get(object.id);
+                            if (object.state) {
+                                button.classList.add("active");
+                                button.disabled = true;
+                            } else {
+                                if (button.classList.contains("active")) {
+                                    button.classList.remove("active");
+                                    button.disabled = false;
+                                }
+                            }
+                            break;
+                        case "message":
+                            window.alert(object.message);
+                            break;
+                        default:
+                            window.alert('Client received unknwon data type!');
+                            break;
+                    }
+                }
+            }
+
+            cfgws.close = (event) => {
+                window.alert("Connection lost! Restart the server and reload this page!");
+            }
+
+            function IsJsonString(str) {
+                try {
+                    JSON.parse(str);
+                } catch (e) {
+                    return false;
+                }
+                return true;
+            }
+
+            const scriptws = new WebSocket('ws://localhost:4444');
+
+            async function scriptbutton(script, args) {
+                const data = {
+                    "script": script,
+                    "args": args,
+                }
+                console.log("[DEBUG] " + JSON.stringify(data).toString());
+                await scriptws.send(JSON.stringify(data).toString());
+                scriptws.onerror = async (error) => {
+                    await window.alert(error);
+                }
+            }
+            async function IconInput(val) {
+                if (val != "") {
+                    document.getElementById("PreviewScriptButtonImage").innerHTML = val;
+                } else {
+                    document.getElementById("PreviewScriptButtonImage").innerHTML = "description";
+                }
+            }
+            async function NameInput(val) {
+                if (val != "") {
+                    const name = val.split(" ");
+                    document.getElementsByClassName("PreviewScriptButton")[0].innerHTML = `<i class="material-icons" id="PreviewScriptButtonImage">${document.getElementById("PreviewScriptButtonImage").innerHTML || "description"}</i>\n${name[0] + " " + (name[1] || "")}`;
+                } else {
+                    document.getElementsByClassName("PreviewScriptButton")[0].innerHTML = `<i class="material-icons" id="PreviewScriptButtonImage">${document.getElementById("PreviewScriptButtonImage").innerHTML || "description"}</i>\nNo Name`;
+                }
+
+            }
+            function allowDrop(event) {
+                event.preventDefault();
+            }
+            function buttonDrag(event) {
+
+            }
+            function buttonDrop(event, id) {
+                event.preventDefault();
+                event.target.innerHTML = document.getElementsByClassName("PreviewScriptButton")[0].innerHTML;
+                let additionalData = {
+                    "pos": id,
+                    "name": document.getElementsByClassName("NameInput")[0].value || "",
+                    "icon": document.getElementsByClassName("IconInput")[0].value || "",
+                    "script": document.getElementsByClassName("ScriptInput")[0].value || "",
+                    "args": document.getElementsByClassName("ArgumentInput")[0].value || "",
+                }
+                // ###################################
+                // Temporary Solution, will be changed
+                let push = true;
+                let i = 0;
+                globalGrid.buttons.forEach((button) => {
+                    if (button.pos == additionalData.pos) {
+                        globalGrid.buttons[i] = additionalData;
+                        push = false;
+                    }
+                    i++;
+                });
+                if (push) {
+                    globalGrid.buttons.push(additionalData);
+                }
+                // ###################################
+
+                cfgws.send("gridPost " + JSON.stringify(globalGrid));
+                document.getElementsByClassName("NameInput")[0].value = "";
+                document.getElementsByClassName("IconInput")[0].value = "";
+                document.getElementsByClassName("ScriptInput")[0].value = "";
+                document.getElementsByClassName("ArgumentInput")[0].value = "";
+                NameInput("");
+                IconInput("");
+            }
+            function reloadScripts() {
+                cfgws.send("reloadReq");
+                const scriptTextList = document.getElementsByClassName("SelectScriptList")[0].children;
+                for (let j = 0; j < scriptTextList.length; j++) {
+                    scriptTextList[j].remove();
+                }
+                cfgws.send('scriptReq');
+            }
+        </script>
+    </head>
+    <body>
+        <div class="TopBar">
+            <h1 class="Header">Websocket config</h1>
+            <button class="ReloadButton headerbutton" onclick="reloadScripts()"><i class="material-icons">replay</i></button>
+        </div>
+        <div class="MainMenu">
+            <div class="grid-container">
+                <div class="grid-item" id="0" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="1" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="2" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="3" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="4" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="5" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="6" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="7" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="8" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="9" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="10" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="11" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="12" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="13" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="14" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="15" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="16" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="17" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="18" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="19" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="20" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="21" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="22" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="23" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="24" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="25" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="26" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+                <div class="grid-item" id="27" ondrop="buttonDrop(event, this.id)" ondragover="allowDrop(event)">
+                    <button class="ScriptButton"></button>
+                </div>
+            </div>
+            <div class="SideBar">
+                <div class="TopSideBar">
+                    <div class="PreviewScriptButton" draggable="true" ondragstart="buttonDrag(event)">
+                        <i class="material-icons" id="PreviewScriptButtonImage">description</i>
+                        No Name
+                    </div>  
+                    <div class="InputDiv">
+                        <input class="NameInput" oninput="NameInput(this.value);" placeholder="Name">
+                        <input class="IconInput" onInput="IconInput(this.value);" placeholder="Material Icon">
+                        <input class="ScriptInput" placeholder="Script">
+                        <input class="ArgumentInput" placeholder="Argument">
+                    </div>
+                </div>
+                <div class="SelectScriptList">
+                </div>
+            </div>
+        </div>
+        <style>
+            body {
+                font-family: Helvetica;
+                color: teal;
+                background-color: black;
+            }
+            .TopBar {
+                border-bottom-style: solid;
+                border-bottom-color: rgb(49, 49, 49);
+                border-bottom-width: 1px;
+                text-align: center;
+            }
+            .MainMenu {
+                overflow: hidden;
+            }
+            .Header {
+                text-align: center;
+                text-shadow: lightseagreen 1px 0 10px;
+                display: inline;
+            }
+            .grid-container {
+                padding-top: 5rem;
+                padding-right: 5rem;
+                padding-left: 5rem;
+                display: grid;
+                grid-template-columns: repeat(7, 8rem);
+                grid-template-rows: repeat(4, 8rem);
+                float: left;
+                grid-gap: 1rem;
+                margin-bottom: 1rem;
+            }
+            .ScriptButton {
+                background-color: rgb(56, 54, 54);
+                font-size: 1.5rem;
+                color: teal;
+                padding: 2rem;
+                border-radius: 12px;
+                border: 2px solid rgb(56, 54, 54);
+                box-shadow: 0 0px 3px 0 rgb(0, 180, 180), 0 4px 5px 0 teal;
+                outline: none;
+                width: 128px;
+                height: 128px;
+            }
+            .ScriptButton:hover {
+                background-color: rgb(16, 94, 90);
+                border: 2px solid rgb(16, 94, 90);
+                color: rgb(0, 180, 180);
+                box-shadow: 0 0px 6px 0 rgb(0, 180, 180), 0 7px 10px 0 teal;
+                outline: none;
+            }
+            .ScriptButton:active {
+                background-color: rgb(16, 94, 90);
+                border: 2px solid rgb(16, 94, 90);
+                outline: none;
+                box-shadow: 0 0px 3px 0 rgb(0, 180, 180), 0 4px 5px 0 teal;
+                transform: translateY(2px);
+            }
+            .ScriptButton.active {
+                background-color: rgb(16, 94, 90);
+                border: 2px solid rgb(16, 94, 90);
+                outline: none;
+                box-shadow: 0 0px 3px 0 rgb(0, 180, 180), 0 4px 5px 0 teal;
+            }
+            .SettingButton {
+                background-color: black;
+                outline: none;
+                border: none;
+            }
+            .material-icons {
+                color: white;
+                font-size: 30px;
+            }
+            .material-icons.md-128 {
+                font-size: 128px;
+            }
+            .material-icons.md-24 {
+                font-size: 24px;
+            }
+            .headerbutton {
+                background-color: black;
+                border: none;
+            }
+            .SideBar {
+                border-left-color: rgb(49, 49, 49);
+                border-left-style: solid;
+                border-left-width: 1px;
+                padding-left: 5px;
+                overflow: hidden;
+                height: 100%;
+            }
+            .TopSideBar {
+                border-bottom-color: rgb(49, 49, 49);
+                border-bottom-style: solid;
+                border-bottom-width: 1px;
+            }
+            .InputDiv {
+                display: inline-block;
+                margin-left: 1rem;
+                width: 70%;
+            }
+            Input {
+                display: block;
+                margin-bottom: 1rem;
+                background-color: black;
+                border-right: none;
+                border-left: none;
+                border-top: none;
+                border-bottom: 1px solid lightgray;
+                color: white;
+                outline: none;
+                width: 100%;
+            }
+            .SelectScriptButton {
+                display: inline;
+            }
+            .Link {
+                float: right;
+            }
+            .PreviewScriptButton {
+                display: inline-block;
+                text-align: center;
+                font-size: 1.5rem;
+                background-color: rgb(56, 54, 54);
+                border-radius: 12px;
+                border: 2px solid rgb(56, 54, 54);
+                box-shadow: 0 0px 3px 0 rgb(0, 180, 180), 0 4px 5px 0 teal;
+                outline: none;
+                color: teal;
+                padding: 2rem;
+                margin-bottom: 5px;
+                margin-top: 5px;
+                width: 64px;
+                height: 64px;
+            }
+        </style>
+    </body>
+</html>
