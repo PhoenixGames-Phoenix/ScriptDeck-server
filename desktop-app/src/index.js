@@ -12,6 +12,7 @@ const createWindow = () => {
   });
   mainWindow.loadFile(path.join(__dirname, '/web/index.html'));
   mainWindow.removeMenu();
+  mainWindow.webContents.openDevTools();
 };
 
 app.on('ready', createWindow);

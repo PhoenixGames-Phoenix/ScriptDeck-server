@@ -2,7 +2,7 @@ const ws = require('ws');
 const express = require('express');
 const fs = require('fs');
 const open = require('open');
-let grid = fs.readFileSync(__dirname + '/data/grid.json');
+let grid = JSON.parse(fs.readFileSync(__dirname + '/data/grid.json'));
 
 function broadcast(sockets, data) {
     sockets.forEach((socket) => {
@@ -137,23 +137,24 @@ cfgws.on('connection', (socket, req) => {
     })
     socket.on("message", (data) => {
         if (data.startsWith("gridReq")) {
-            grid = fs.readFileSync(__dirname + '/data/grid.json');
+            grid = JSON.parse(fs.readFileSync(__dirname + '/data/grid.json'));
             console.log("[INFO] Grid Request from " + req.connection.remoteAddress);
-            socket.send(grid.toString());
+            socket.send(JSON.stringify(grid));
         } else if (data.startsWith("scriptReq")) {
             socket.send(JSON.stringify(scriptsList));
             console.log("[INFO] Script List Request from " + req.connection.remoteAddress);
         } else if (data.startsWith("gridPost")) {
             const PostData = data.substring(9);
-            console.log("[INFO] Script Post Reqeust from " + req.connection.remoteAddress);
+            console.log("[INFO] Script Post Request from " + req.connection.remoteAddress);
             console.log("[INFO] Data: " + PostData);
             fs.truncateSync(__dirname + "/data/grid.json", 0);
             fs.writeFileSync(__dirname + "/data/grid.json", PostData);
-            grid = fs.readFileSync(__dirname + '/data/grid.json');
+            grid = JSON.parse(fs.readFileSync(__dirname + '/data/grid.json'));
             const updateData = {
                 type: "gridUpdate",
                 grid: grid
             }
+            console.log(JSON.stringify(updateData));
             broadcast(sockets, JSON.stringify(updateData));
         } else if (data.startsWith("reloadReq")) {
             scriptsDir = fs.readdirSync(__dirname + '/scripts/').filter((file) => file.endsWith('.js'));
