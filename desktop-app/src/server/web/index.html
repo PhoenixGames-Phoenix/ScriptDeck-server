@@ -107,7 +107,7 @@
                     "script": script,
                     "args": args,
                 }
-                console.log("[DEBUG] " + JSON.stringify(data).toString());
+                // console.log("[DEBUG] " + JSON.stringify(data).toString());
                 await scriptws.send(JSON.stringify(data).toString());
                 scriptws.onerror = async (error) => {
                     await window.alert(error);

@@ -1,7 +1,6 @@
 const ws = require('ws');
 const express = require('express');
 const fs = require('fs');
-const open = require('open');
 let grid = JSON.parse(fs.readFileSync(__dirname + '/data/grid.json'));
 
 function broadcast(sockets, data) {
@@ -146,7 +145,7 @@ cfgws.on('connection', (socket, req) => {
         } else if (data.startsWith("gridPost")) {
             const PostData = data.substring(9);
             console.log("[INFO] Script Post Request from " + req.connection.remoteAddress);
-            console.log("[INFO] Data: " + PostData);
+            // console.log("[INFO] Data: " + PostData);
             fs.truncateSync(__dirname + "/data/grid.json", 0);
             fs.writeFileSync(__dirname + "/data/grid.json", PostData);
             grid = JSON.parse(fs.readFileSync(__dirname + '/data/grid.json'));
