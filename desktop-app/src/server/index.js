@@ -2,7 +2,7 @@ const ws = require('ws');
 const express = require('express');
 const fs = require('fs');
 const open = require('open');
-let grid = fs.readFileSync('./data/grid.json');
+let grid = JSON.parse(fs.readFileSync(__dirname + '/data/grid.json'));
 
 function broadcast(sockets, data) {
     sockets.forEach((socket) => {
@@ -50,24 +50,24 @@ module.exports = {
     }
 }
 
-if (!fs.existsSync('./data/')) {
-    fs.mkdirSync('./data/');
-    fs.writeFileSync('./data/grid.json', '{ "type": "grid", "buttons": [] }');
+if (!fs.existsSync(__dirname + '/data/')) {
+    fs.mkdirSync(__dirname + '/data/');
+    fs.writeFileSync(__dirname + '/data/grid.json', '{ "type": "grid", "buttons": [] }');
 }
-if (!fs.existsSync('./scripts/')) {
-    fs.mkdirSync('./scripts/');
+if (!fs.existsSync(__dirname + '/scripts/')) {
+    fs.mkdirSync(__dirname + '/scripts/');
 }
-if (!fs.existsSync('./plugins/')) {
-    fs.mkdirSync('./plugins/');
+if (!fs.existsSync(__dirname + '/plugins/')) {
+    fs.mkdirSync(__dirname + '/plugins/');
 }
 
-let scriptsDir = fs.readdirSync('./scripts/').filter((file) => file.endsWith('.js'));
+let scriptsDir = fs.readdirSync(__dirname + '/scripts/').filter((file) => file.endsWith('.js'));
 let scriptsList = {type: "", list: []};
 scriptsList.type = "scriptList";
 let scripts = new Map();
 
 function loadScripts() {
-    scriptsDir = fs.readdirSync('./scripts/').filter((file) => file.endsWith('.js'));
+    scriptsDir = fs.readdirSync(__dirname + '/scripts/').filter((file) => file.endsWith('.js'));
     scriptsList = {type: "", list: []};
     scriptsList.type = "scriptList";
     scripts = new Map();
@@ -82,11 +82,11 @@ function loadScripts() {
 }
 loadScripts();
 
-let pluginsDir = fs.readdirSync('./plugins/').filter((file) => file.endsWith('.js'));
+let pluginsDir = fs.readdirSync(__dirname + '/plugins/').filter((file) => file.endsWith('.js'));
 let plugins = new Map();
 
 function loadPlugins() {
-    pluginsDir = fs.readdirSync('./plugins/').filter((file) => file.endsWith('.js'));
+    pluginsDir = fs.readdirSync(__dirname + '/plugins/').filter((file) => file.endsWith('.js'));
     plugins = new Map();
     let i = 0;
     for (const file of pluginsDir) {
@@ -103,16 +103,16 @@ const ControlApp = express();
 ControlApp.use(express.static('./web/'));
 
 ControlApp.get('/scripts/:script', function (req, res) {
-    const src = fs.readFileSync('./scripts/' + req.params.script + '.js').toString();
+    const src = fs.readFileSync(__dirname + '/scripts/' + req.params.script + '.js').toString();
     res.send(src);
 })
 
 ControlApp.get('/', function(req, res) {
-    const index = fs.readFileSync('./web/index.html').toString();
+    const index = fs.readFileSync(__dirname + '/web/index.html').toString();
     res.send(index);
 });
 ControlApp.get('/src', function(req, res) {
-    const src = fs.readFileSync('./web/src.html').toString();
+    const src = fs.readFileSync(__dirname + '/web/src.html').toString();
     res.send(src);
 })
 
@@ -137,31 +137,43 @@ cfgws.on('connection', (socket, req) => {
     })
     socket.on("message", (data) => {
         if (data.startsWith("gridReq")) {
-            grid = fs.readFileSync('./data/grid.json');
+            grid = JSON.parse(fs.readFileSync(__dirname + '/data/grid.json'));
             console.log("[INFO] Grid Request from " + req.connection.remoteAddress);
-            socket.send(grid.toString());
+            socket.send(JSON.stringify(grid));
         } else if (data.startsWith("scriptReq")) {
             socket.send(JSON.stringify(scriptsList));
             console.log("[INFO] Script List Request from " + req.connection.remoteAddress);
         } else if (data.startsWith("gridPost")) {
             const PostData = data.substring(9);
-            console.log("[INFO] Script Post Reqeust from " + req.connection.remoteAddress);
-            console.log("[INFO] Data: " + PostData);
-            fs.truncateSync("./data/grid.json", 0);
-            fs.writeFileSync("./data/grid.json", PostData);
-            grid = fs.readFileSync('./data/grid.json');
+            console.log("[INFO] Script Post Request from " + req.connection.remoteAddress);
+            // console.log("[INFO] Data: " + PostData);
+            fs.truncateSync(__dirname + "/data/grid.json", 0);
+            fs.writeFileSync(__dirname + "/data/grid.json", PostData);
+            grid = JSON.parse(fs.readFileSync(__dirname + '/data/grid.json'));
             const updateData = {
                 type: "gridUpdate",
                 grid: grid
             }
+            console.log(JSON.stringify(updateData));
             broadcast(sockets, JSON.stringify(updateData));
         } else if (data.startsWith("reloadReq")) {
-            scriptsDir = fs.readdirSync('./scripts/').filter((file) => file.endsWith('.js'));
+            scriptsDir = fs.readdirSync(__dirname + '/scripts/').filter((file) => file.endsWith('.js'));
             for (const file of scriptsDir) {
                 delete require.cache[require.resolve("./scripts/" + file)];
             }
             loadScripts();
             socket.send("reloadFinished");
+        } else if (data.startsWith("openFolder")) {
+            const folder = data.substring(11);
+            // Switch statement instead of direct user Input because we don't want users just being able to execute files, even if this only runs locally
+            switch (folder) {
+                case "scripts":
+                    open(__dirname + "/scripts/");
+                    break;
+                case "plugins":
+                    open(__dirname + "/plugins/");
+                    break;
+            }
         } else {
             socket.send("This is the Config Websocket Server for ScriptDeck. If you want to interact with this websocket, use the Web Interface on Port 4654");
         }
@@ -198,6 +210,3 @@ scriptws.on('connection', (socket, req) => {
         console.log('[INFO] ' + req.connection.remoteAddress + ' closed connection with code ' + code + ' because of "' + reason + '"')
     })
 })
-
-console.log("[INFO] Opening browser window...");
-open("http://localhost:4654")
