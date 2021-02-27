@@ -1,6 +1,7 @@
 const ws = require('ws');
 const express = require('express');
 const fs = require('fs');
+const open = require('open');
 let grid = JSON.parse(fs.readFileSync(__dirname + '/data/grid.json'));
 
 function broadcast(sockets, data) {
@@ -162,6 +163,17 @@ cfgws.on('connection', (socket, req) => {
             }
             loadScripts();
             socket.send("reloadFinished");
+        } else if (data.startsWith("openFolder")) {
+            const folder = data.substring(11);
+            // Switch statement instead of direct user Input because we don't want users just being able to execute files, even if this only runs locally
+            switch (folder) {
+                case "scripts":
+                    open(__dirname + "/scripts/");
+                    break;
+                case "plugins":
+                    open(__dirname + "/plugins/");
+                    break;
+            }
         } else {
             socket.send("This is the Config Websocket Server for ScriptDeck. If you want to interact with this websocket, use the Web Interface on Port 4654");
         }

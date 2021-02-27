@@ -169,14 +169,18 @@
                 NameInput("");
                 IconInput("");
             }
-            function reloadScripts() {
+            // Disabled due to new openFolder changes
+            /* function reloadScripts() {
                 cfgws.send("reloadReq");
                 const scriptTextList = document.getElementsByClassName("SelectScriptList")[0].children;
                 for (let j = 0; j < scriptTextList.length; j++) {
                     scriptTextList[j].remove();
                 }
                 cfgws.send('scriptReq');
-            }
+            } */
+            function openFolder(folder) {
+                cfgws.send("openFolder " + folder);
+            } 
         </script>
     </head>
     <body>
@@ -285,6 +289,7 @@
                     </div>
                 </div>
                 <div class="SelectScriptList">
+                    <button class="openScriptFolder" onclick="openFolder('scripts')">Open Scripts Folder</button>
                 </div>
             </div>
         </div>
@@ -421,6 +426,16 @@
                 margin-top: 5px;
                 width: 64px;
                 height: 64px;
+            }
+            .openScriptFolder {
+                border: none;
+                outline: none;
+                text-align: center;
+                background-color: black;
+                color: teal;
+                margin-top: 2px;
+                margin-bottom: 2px;
+                margin-left: 5px;
             }
         </style>
     </body>
