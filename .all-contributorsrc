@@ -1,0 +1,25 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "PhoenixGames-Phoenix",
+      "name": "Phoenix_13",
+      "avatar_url": "https://avatars.githubusercontent.com/u/47122082?v=4",
+      "profile": "http://PhoenixGames-Phoenix.github.io",
+      "contributions": [
+        "code",
+        "ideas"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "ScriptDeck",
+  "projectOwner": "PhoenixGames-Phoenix",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
