@@ -1,6 +1,6 @@
 {
   "name": "scriptdeck-server",
-  "version": "0.2.0",
+  "version": "0.3.1",
   "description": "A Server to remotely execute javascript functions on your machine",
   "main": "./src/index.js",
   "scripts": {
