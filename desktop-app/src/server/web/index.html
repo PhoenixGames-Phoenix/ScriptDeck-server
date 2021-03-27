@@ -180,13 +180,22 @@
             } */
             function openFolder(folder) {
                 cfgws.send("openFolder " + folder);
-            } 
+            }
+            function RAINBOW() {
+                let buttons = document.getElementsByClassName("ScriptButton");
+                for (var i = 0; i < buttons.length; i++) {
+                    buttons[i].classList.toggle("rainbowtext");
+                }
+                document.getElementsByClassName("PreviewScriptButton")[0].classList.toggle("rainbowtext");
+                document.getElementsByClassName("Header")[0].classList.toggle("rainbowtext");
+            }
         </script>
     </head>
     <body>
         <div class="TopBar">
             <h1 class="Header">Websocket config</h1>
             <button class="ReloadButton headerbutton" onclick="reloadScripts()"><i class="material-icons">replay</i></button>
+            <button class="RainbowButton headerbutton" onclick="RAINBOW()"><i class="material-icons">looks</i></button>
         </div>
         <div class="MainMenu">
             <div class="grid-container">
@@ -374,6 +383,7 @@
             .headerbutton {
                 background-color: black;
                 border: none;
+                outline: none;
             }
             .SideBar {
                 border-left-color: rgb(49, 49, 49);
@@ -437,6 +447,28 @@
                 margin-bottom: 2px;
                 margin-left: 5px;
             }
+            .rainbowtext {
+                animation: rainbow 5s linear 0s infinite;
+            }
+
+            @keyframes rainbow {
+                from {
+                    color: #6666ff;
+                }
+                10% {
+                    color: #0099ff;
+                }
+                50% {
+                    color: #00ff00;
+                }
+                75% {
+                    color: #ff3399;
+                }
+                100% {
+                    color: #6666ff;
+                }
+            }
+            
         </style>
     </body>
 </html>
