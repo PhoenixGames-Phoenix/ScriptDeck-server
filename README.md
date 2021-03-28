@@ -8,6 +8,7 @@
 
 [![CodeFactor](https://www.codefactor.io/repository/github/phoenixgames-phoenix/scriptdeck/badge)](https://www.codefactor.io/repository/github/phoenixgames-phoenix/scriptdeck)
 ![GitHub](https://img.shields.io/github/license/PhoenixGames-Phoenix/ScriptDeck)
+[![Electron Build CI](https://github.com/PhoenixGames-Phoenix/ScriptDeck/actions/workflows/electron.yml/badge.svg?branch=master)](https://github.com/PhoenixGames-Phoenix/ScriptDeck/actions/workflows/electron.yml)
 
 The ScriptDeck is a way to remotely execute your own javascript functions on your machine. ScriptDeck comes with a web server and 2 Websockets which host a configuration webpage which make it possible to easily configure your own buttons using pre-written or your own functions.
 
