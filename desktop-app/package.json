@@ -5,7 +5,6 @@
   "main": "src/index.js",
   "scripts": {
     "start": "electron .",
-    "build": "npx electron-builder -wl -c electron-builder.yml",
     "lint": "echo \"No linting configured\""
   },
   "keywords": [],

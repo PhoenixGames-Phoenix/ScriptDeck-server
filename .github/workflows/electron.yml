@@ -11,22 +11,28 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    if: "contains(github.event.head_commit.message, '[build]')"
+    if: "! contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ${{ matrix.os }}
+
     defaults:
       run:
         working-directory: ./desktop-app
 
     strategy:
       matrix:
-        node-version: [14.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        os: [ubuntu-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Check out Repository
+        uses: actions/checkout@v1
+
+      - name: Setup node.js 14
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npx electron-builder -wl -c electron-builder.yml
+          node-version: 14
+
+      - name: Build electron App
+        uses: samuelmeuli/action-electron-builder@v1
+        with:
+          github-token: ${{ secrets.github_token }}
+          release: ${{ startsWith(github.ref, 'ref/tags/v') }}
