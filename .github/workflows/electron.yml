@@ -35,4 +35,5 @@ jobs:
         uses: samuelmeuli/action-electron-builder@v1
         with:
           github_token: ${{ secrets.github_token }}
+          package_root: ./desktop-app
           release: ${{ startsWith(github.ref, 'ref/tags/v') }}
