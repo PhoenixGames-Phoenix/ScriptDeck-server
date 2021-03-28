@@ -13,6 +13,10 @@
     "email": "47122082+PhoenixGames-Phoenix@users.noreply.github.com"
   },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PhoenixGames-Phoenix/ScriptDeck.git"
+  },
   "config": {},
   "dependencies": {
     "electron-squirrel-startup": "^1.0.0",
