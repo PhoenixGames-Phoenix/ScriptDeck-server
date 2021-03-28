@@ -34,5 +34,5 @@ jobs:
       - name: Build electron App
         uses: samuelmeuli/action-electron-builder@v1
         with:
-          github-token: ${{ secrets.github_token }}
+          github_token: ${{ secrets.github_token }}
           release: ${{ startsWith(github.ref, 'ref/tags/v') }}
