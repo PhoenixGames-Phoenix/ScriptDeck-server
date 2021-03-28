@@ -22,7 +22,6 @@ nsis:
   perMachine: false
   allowElevation: true
   allowToChangeInstallationDirectory: true
-  installerIcon: resources/icon.png
 
 linux:
   target:
