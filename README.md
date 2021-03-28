@@ -34,7 +34,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- markdownlint-disable -->
 <table>
   <tr>
-    <td align="center"><a href="http://PhoenixGames-Phoenix.github.io"><img src="https://avatars.githubusercontent.com/u/47122082?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Phoenix_13</b></sub></a><br /><a href="https://github.com/PhoenixGames-Phoenix/ScriptDeck/commits?author=PhoenixGames-Phoenix" title="Code">💻</a> <a href="#ideas-PhoenixGames-Phoenix" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/PhoenixGames-Phoenix/ScriptDeck/commits?author=PhoenixGames-Phoenix" title="Documentation">📖</a></td>
+    <td align="center"><a href="http://PhoenixGames-Phoenix.github.io"><img src="https://avatars.githubusercontent.com/u/47122082?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Phoenix_13</b></sub></a><br /><a href="https://github.com/PhoenixGames-Phoenix/ScriptDeck/commits?author=PhoenixGames-Phoenix" title="Code">💻</a> <a href="#ideas-PhoenixGames-Phoenix" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/PhoenixGames-Phoenix/ScriptDeck/commits?author=PhoenixGames-Phoenix" title="Documentation">📖</a> <a href="https://github.com/PhoenixGames-Phoenix/ScriptDeck/issues?q=author%3APhoenixGames-Phoenix" title="Bug reports">🐛</a></td>
     <td align="center"><a href="https://allcontributors.org"><img src="https://avatars.githubusercontent.com/u/46410174?v=4?s=100" width="100px;" alt=""/><br /><sub><b>All Contributors</b></sub></a><br /><a href="https://github.com/PhoenixGames-Phoenix/ScriptDeck/commits?author=all-contributors" title="Documentation">📖</a></td>
   </tr>
 </table>
