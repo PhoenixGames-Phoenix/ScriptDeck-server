@@ -9,6 +9,7 @@ if (require('electron-squirrel-startup')) {
 
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
+    icon: __dirname + '/assets/Logo.ico',
     width: 1920,
     height: 1080,
   });

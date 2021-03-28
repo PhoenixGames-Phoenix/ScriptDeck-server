@@ -115,6 +115,10 @@ ControlApp.get('/src', function(req, res) {
     const src = fs.readFileSync(__dirname + '/web/src.html').toString();
     res.send(src);
 })
+ControlApp.get('/favicon.ico', function(req, res) {
+    const ico = fs.readFileSync(__dirname + '/web/favicon.ico');
+    res.send(ico);
+})
 
 try {
     ControlApp.listen(4654);
