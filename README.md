@@ -1,7 +1,11 @@
 # ScriptDeck
+
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+
 [![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
+
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
+
 [![CodeFactor](https://www.codefactor.io/repository/github/phoenixgames-phoenix/scriptdeck/badge)](https://www.codefactor.io/repository/github/phoenixgames-phoenix/scriptdeck)
 ![GitHub](https://img.shields.io/github/license/PhoenixGames-Phoenix/ScriptDeck)
 
@@ -17,13 +21,6 @@ This Project is still Work In Progess. You can help out by opening pull requests
 - 2 Websockets used for configuration and execution of scripts
 - A web page for easy GUI configuration of buttons in a 7x4 Grid
 - A source code viewer to look at the scripts source code
-
-## TO-DO
-
-- [ ] Documentation (High Priority)
-- [ ] Mobile App
-- [ ] Merge the 2 Websockets
-- [ ] Folders
 
 ## Contributors ✨
 
