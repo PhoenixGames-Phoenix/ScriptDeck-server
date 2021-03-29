@@ -10,18 +10,20 @@
 ![GitHub](https://img.shields.io/github/license/PhoenixGames-Phoenix/ScriptDeck)
 [![Electron Build](https://github.com/PhoenixGames-Phoenix/ScriptDeck/actions/workflows/electron.yml/badge.svg)](https://github.com/PhoenixGames-Phoenix/ScriptDeck/actions/workflows/electron.yml)
 
-The ScriptDeck is a way to remotely execute your own javascript functions on your machine. ScriptDeck comes with a web server and 2 Websockets which host a configuration webpage which make it possible to easily configure your own buttons using pre-written or your own functions.
+ScriptDeck is a way to execute preconfigured functions on your machine from any device with a browser in your local network.
 
 ## WIP
 
-This Project is still Work In Progess. You can help out by opening pull requests, reporting bugs using issues or sending suggestions on my [discord server](https://discord.gg/gTwuaHW)
+This Project is still Work In Progess. Both the desktop and mobile app are not yet finished and are not available for installation. You can help out by opening pull requests, reporting bugs using issues or sending suggestions on my [discord server](https://discord.gg/gTwuaHW)
 
-## Feature List
+## Development Setup (desktop-app)
 
-- A web server
-- 2 Websockets used for configuration and execution of scripts
-- A web page for easy GUI configuration of buttons in a 7x4 Grid
-- A source code viewer to look at the scripts source code
+Prerequisites:
+- [Node.js 14](https://nodejs.org/en/download/)
+
+1. Clone the git repository
+2. Run `npm i` in the desktop-app directory to install the required dependencies
+3. For starting the desktop app use `npm run start` or `(npx) electron .`, for building (not recommended, installed versions are not fully functional) run `(npx) electron-builder --<windows | linux | macos> -c electron_builder.yml`
 
 ## Contributors ✨
 
