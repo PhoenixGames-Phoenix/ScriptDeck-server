@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "electron": "11.3.0",
-    "electron-builder": "^22.10.5"
+    "electron-builder": "^22.10.5",
+    "jsdoc": "^3.6.6"
   }
 }

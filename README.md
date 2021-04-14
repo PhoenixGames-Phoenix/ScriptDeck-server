@@ -8,6 +8,7 @@
 
 [![CodeFactor](https://www.codefactor.io/repository/github/phoenixgames-phoenix/scriptdeck/badge)](https://www.codefactor.io/repository/github/phoenixgames-phoenix/scriptdeck)
 ![GitHub](https://img.shields.io/github/license/PhoenixGames-Phoenix/ScriptDeck)
+[![Discord](https://img.shields.io/discord/396281837875625986?label=discord)](https://discord.gg/gTwuaHW)
 [![Electron Build](https://github.com/PhoenixGames-Phoenix/ScriptDeck/actions/workflows/electron.yml/badge.svg)](https://github.com/PhoenixGames-Phoenix/ScriptDeck/actions/workflows/electron.yml)
 
 ScriptDeck is a way to execute preconfigured functions on your machine from any device with a browser in your local network.
@@ -19,6 +20,7 @@ This Project is still Work In Progess. Both the desktop and mobile app are not y
 ## Development Setup (desktop-app)
 
 Prerequisites:
+
 - [Node.js 14](https://nodejs.org/en/download/)
 
 1. Clone the git repository
