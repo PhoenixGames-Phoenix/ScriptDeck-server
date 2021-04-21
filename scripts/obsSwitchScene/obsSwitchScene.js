@@ -1,8 +1,8 @@
-const obsAPI = require('../plugins/obs-websocket');
+const obsAPI = require('../../plugins/obs-websocket');
 
 module.exports = {
     name: 'obsSwitchScene',
-    async execute(scene) {
+    async execute(API, scene) {
         await obsAPI.switchScene(scene);
     }
 }

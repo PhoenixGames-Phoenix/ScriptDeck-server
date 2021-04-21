@@ -1,0 +1,14 @@
+{
+  "name": "obs-websocket",
+  "version": "1.0.0",
+  "description": "",
+  "main": "obs-websocket.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Phoenix_13",
+  "license": "MIT",
+  "dependencies": {
+    "obs-websocket-js": "^4.0.2"
+  }
+}

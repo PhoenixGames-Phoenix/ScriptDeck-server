@@ -2,7 +2,8 @@ const ws = require('ws');
 const express = require('express');
 const fs = require('fs');
 const open = require('open');
-const globalPath = require('../index').globalPath;
+const npmi = require('npmi');
+const globalPath = require('../index.js').globalPath;
 
 if (!fs.existsSync(globalPath + '/data/')) {
     fs.mkdirSync(globalPath + '/data/');
@@ -20,7 +21,7 @@ function broadcast(sockets, data) {
 }
 
 // ScriptDeck API for Scripts and Plugins
-module.exports = {
+const API = {
     /**
      * Sends raw websocket data to connected clients.
      * @param {object} - Data
@@ -75,20 +76,58 @@ module.exports = {
         broadcast(sockets, JSON.stringify(data));
     }
 }
+module.exports = API;
 
-let scriptsDir = fs.readdirSync(globalPath + '/scripts/').filter((file) => file.endsWith('.js'));
-let scriptsList = {type: "", list: []};
-scriptsList.type = "scriptList";
+let pluginsDir = fs.readdirSync(globalPath + '/plugins/');
+let plugins = new Map();
+
+function loadPlugins() {
+    pluginsDir = fs.readdirSync(globalPath + '/plugins/');
+    plugins = new Map();
+    let i = 0;
+    for (const folder of pluginsDir) {
+        const pluginPath = `${globalPath}/plugins/${folder}`
+        if (fs.existsSync(`${pluginPath}/package.json` && !fs.existsSync(`${pluginPath}/node_modules/`))) {
+            let deps = Object.keys(JSON.parse(fs.readFileSync(`${pluginPath}/package.json`)).dependencies);
+            deps.forEach((dep) => {
+                let options = {
+                    name: dep,
+                    path: pluginPath
+                }
+                npmi(options);
+            })
+        }
+        const plugin = require(`${pluginPath}/${folder}.js`);
+        plugin.execute(API);
+        plugins.set(plugin.name, plugin);
+        i++;
+    }
+    console.log(`[INFO] Loaded ${i} Plugins!`);
+}
+loadPlugins();
+
+let scriptsDir = fs.readdirSync(globalPath + '/scripts/');
+let scriptsList = {type: "scriptList", list: []};
 let scripts = new Map();
 
 function loadScripts() {
-    scriptsDir = fs.readdirSync(globalPath + '/scripts/').filter((file) => file.endsWith('.js'));
-    scriptsList = {type: "", list: []};
-    scriptsList.type = "scriptList";
+    scriptsDir = fs.readdirSync(globalPath + '/scripts/');
+    scriptsList = {type: "scriptList", list: []};
     scripts = new Map();
     let i = 0;
-    for (const file of scriptsDir) {
-        const script = require(`./scripts/${file}`);
+    for (const folder of scriptsDir) {
+        const scriptPath = `${globalPath}/scripts/${folder}`;
+        if (fs.existsSync(`${scriptPath}/package.json`) && !fs.existsSync(`${scriptPath}/node_modules/`)) {
+            let deps = Object.keys(JSON.parse(fs.readFileSync(`${scriptPath}/package.json`)).dependencies);
+            deps.forEach((dep) => {
+                let options = {
+                    name: dep,
+                    path: scriptPath
+                }
+                npmi(options);
+            })
+        }
+        const script = require(`${globalPath}/scripts/${folder}/${folder}.js`);
         scripts.set(script.name, script);
         scriptsList.list[i] = script.name;
         i++;
@@ -96,22 +135,6 @@ function loadScripts() {
     console.log("[INFO] Scripts loaded! Loaded " + i + " Script(s)");
 }
 loadScripts();
-
-let pluginsDir = fs.readdirSync(globalPath + '/plugins/').filter((file) => file.endsWith('.js'));
-let plugins = new Map();
-
-function loadPlugins() {
-    pluginsDir = fs.readdirSync(globalPath + '/plugins/').filter((file) => file.endsWith('.js'));
-    plugins = new Map();
-    let i = 0;
-    for (const file of pluginsDir) {
-        const plugin = require(`./plugins/${file}`);
-        plugin.execute();
-        plugins.set(plugin.name, plugin);
-        i++;
-    }
-}
-loadPlugins();
 
 const ControlApp = express();
 
@@ -178,7 +201,7 @@ cfgws.on('connection', (socket, req) => {
         } else if (data.startsWith("reloadReq")) {
             scriptsDir = fs.readdirSync(globalPath + '/scripts/').filter((file) => file.endsWith('.js'));
             for (const file of scriptsDir) {
-                delete require.cache[require.resolve("./scripts/" + file)];
+                delete require.cache[require.resolve(globalPath + "/scripts/" + file)];
             }
             loadScripts();
             socket.send("reloadFinished");
@@ -213,9 +236,9 @@ scriptws.on('connection', (socket, req) => {
         try {
             console.log('[INFO] Script "' + data.script + '" executed from ' + req.connection.remoteAddress);
             if (data.args) {
-                script.execute(data.args);
+                script.execute(API, data.args);
             } else {
-                script.execute();
+                script.execute(API);
             }
             
         } catch (error) {
