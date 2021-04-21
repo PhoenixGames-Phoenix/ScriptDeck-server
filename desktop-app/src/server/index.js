@@ -2,7 +2,16 @@ const ws = require('ws');
 const express = require('express');
 const fs = require('fs');
 const open = require('open');
-let grid = JSON.parse(fs.readFileSync(__dirname + '/data/grid.json'));
+const globalPath = require('../index').globalPath;
+
+if (!fs.existsSync(globalPath + '/data/')) {
+    fs.mkdirSync(globalPath + '/data/');
+    fs.writeFileSync(globalPath + '/data/grid.json', '{ "type": "grid", "buttons": [] }');
+}
+if (!fs.existsSync(globalPath + '/scripts/')) fs.mkdirSync(globalPath + '/scripts/');
+if (!fs.existsSync(globalPath + '/plugins/')) fs.mkdirSync(globalPath + '/plugins/');
+
+let grid = JSON.parse(fs.readFileSync(globalPath + '/data/grid.json'));
 
 function broadcast(sockets, data) {
     sockets.forEach((socket) => {
@@ -67,24 +76,13 @@ module.exports = {
     }
 }
 
-if (!fs.existsSync(__dirname + '/data/')) {
-    fs.mkdirSync(__dirname + '/data/');
-    fs.writeFileSync(__dirname + '/data/grid.json', '{ "type": "grid", "buttons": [] }');
-}
-if (!fs.existsSync(__dirname + '/scripts/')) {
-    fs.mkdirSync(__dirname + '/scripts/');
-}
-if (!fs.existsSync(__dirname + '/plugins/')) {
-    fs.mkdirSync(__dirname + '/plugins/');
-}
-
-let scriptsDir = fs.readdirSync(__dirname + '/scripts/').filter((file) => file.endsWith('.js'));
+let scriptsDir = fs.readdirSync(globalPath + '/scripts/').filter((file) => file.endsWith('.js'));
 let scriptsList = {type: "", list: []};
 scriptsList.type = "scriptList";
 let scripts = new Map();
 
 function loadScripts() {
-    scriptsDir = fs.readdirSync(__dirname + '/scripts/').filter((file) => file.endsWith('.js'));
+    scriptsDir = fs.readdirSync(globalPath + '/scripts/').filter((file) => file.endsWith('.js'));
     scriptsList = {type: "", list: []};
     scriptsList.type = "scriptList";
     scripts = new Map();
@@ -99,11 +97,11 @@ function loadScripts() {
 }
 loadScripts();
 
-let pluginsDir = fs.readdirSync(__dirname + '/plugins/').filter((file) => file.endsWith('.js'));
+let pluginsDir = fs.readdirSync(globalPath + '/plugins/').filter((file) => file.endsWith('.js'));
 let plugins = new Map();
 
 function loadPlugins() {
-    pluginsDir = fs.readdirSync(__dirname + '/plugins/').filter((file) => file.endsWith('.js'));
+    pluginsDir = fs.readdirSync(globalPath + '/plugins/').filter((file) => file.endsWith('.js'));
     plugins = new Map();
     let i = 0;
     for (const file of pluginsDir) {
@@ -120,20 +118,20 @@ const ControlApp = express();
 ControlApp.use(express.static('./web/'));
 
 ControlApp.get('/scripts/:script', function (req, res) {
-    const src = fs.readFileSync(__dirname + '/scripts/' + req.params.script + '.js').toString();
+    const src = fs.readFileSync(globalPath + '/scripts/' + req.params.script + '.js').toString();
     res.send(src);
 })
 
 ControlApp.get('/', function(req, res) {
-    const index = fs.readFileSync(__dirname + '/web/index.html').toString();
+    const index = fs.readFileSync(globalPath + '/web/index.html').toString();
     res.send(index);
 });
 ControlApp.get('/src', function(req, res) {
-    const src = fs.readFileSync(__dirname + '/web/src.html').toString();
+    const src = fs.readFileSync(globalPath + '/web/src.html').toString();
     res.send(src);
 })
 ControlApp.get('/favicon.ico', function(req, res) {
-    const ico = fs.readFileSync(__dirname + '/web/favicon.ico');
+    const ico = fs.readFileSync(globalPath + '/web/favicon.ico');
     res.send(ico);
 })
 
@@ -158,7 +156,7 @@ cfgws.on('connection', (socket, req) => {
     })
     socket.on("message", (data) => {
         if (data.startsWith("gridReq")) {
-            grid = JSON.parse(fs.readFileSync(__dirname + '/data/grid.json'));
+            grid = JSON.parse(fs.readFileSync(globalPath + '/data/grid.json'));
             console.log("[INFO] Grid Request from " + req.connection.remoteAddress);
             socket.send(JSON.stringify(grid));
         } else if (data.startsWith("scriptReq")) {
@@ -168,9 +166,9 @@ cfgws.on('connection', (socket, req) => {
             const PostData = data.substring(9);
             console.log("[INFO] Script Post Request from " + req.connection.remoteAddress);
             // console.log("[INFO] Data: " + PostData);
-            fs.truncateSync(__dirname + "/data/grid.json", 0);
-            fs.writeFileSync(__dirname + "/data/grid.json", PostData);
-            grid = JSON.parse(fs.readFileSync(__dirname + '/data/grid.json'));
+            fs.truncateSync(globalPath + "/data/grid.json", 0);
+            fs.writeFileSync(globalPath + "/data/grid.json", PostData);
+            grid = JSON.parse(fs.readFileSync(globalPath + '/data/grid.json'));
             const updateData = {
                 type: "gridUpdate",
                 grid: grid
@@ -178,7 +176,7 @@ cfgws.on('connection', (socket, req) => {
             console.log(JSON.stringify(updateData));
             broadcast(sockets, JSON.stringify(updateData));
         } else if (data.startsWith("reloadReq")) {
-            scriptsDir = fs.readdirSync(__dirname + '/scripts/').filter((file) => file.endsWith('.js'));
+            scriptsDir = fs.readdirSync(globalPath + '/scripts/').filter((file) => file.endsWith('.js'));
             for (const file of scriptsDir) {
                 delete require.cache[require.resolve("./scripts/" + file)];
             }
@@ -189,10 +187,10 @@ cfgws.on('connection', (socket, req) => {
             // Switch statement instead of direct user Input because we don't want users just being able to execute files, even if this only runs locally
             switch (folder) {
                 case "scripts":
-                    open(__dirname + "/scripts/");
+                    open(globalPath + "/scripts/");
                     break;
                 case "plugins":
-                    open(__dirname + "/plugins/");
+                    open(globalPath + "/plugins/");
                     break;
             }
         } else {

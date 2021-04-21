@@ -31,4 +31,6 @@ app.on('activate', () => {
   }
 });
 
+module.exports.globalPath = app.getPath('userData');
+
 require('./server/index');
