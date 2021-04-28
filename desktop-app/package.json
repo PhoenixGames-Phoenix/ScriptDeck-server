@@ -22,7 +22,7 @@
     "electron-squirrel-startup": "^1.0.0",
     "express": "^4.17.1",
     "npmi": "^4.0.0",
-    "open": "^8.0.6",
+    "open": "^8.0.7",
     "ws": "^7.4.5"
   },
   "devDependencies": {
