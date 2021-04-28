@@ -1,7 +1,6 @@
 const { app, BrowserWindow } = require('electron');
 const fs = require('fs');
 const path = require('path');
-const pacote = require('pacote');
 const npmi = require('npmi');
 
 const createWindow = () => {
@@ -31,7 +30,12 @@ app.on('activate', () => {
 module.exports.globalPath = app.getPath('userData');
 
 
-
+// This is some really fucked up shit that somehow works.
+// I want to never touch it again and these few lines are my biggest enemy.
+// And no: I do not understand why or how this works but it does.
+// ++++++++++++++++
+// + DO NOT TOUCH +
+// ++++++++++++++++
 function start(paths) {
   let promises = [];
   paths.forEach((path) => {
