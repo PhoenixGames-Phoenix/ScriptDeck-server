@@ -11,7 +11,7 @@
 [![Discord](https://img.shields.io/discord/396281837875625986?label=discord)](https://discord.gg/gTwuaHW)
 [![Electron Build](https://github.com/PhoenixGames-Phoenix/ScriptDeck/actions/workflows/electron.yml/badge.svg)](https://github.com/PhoenixGames-Phoenix/ScriptDeck/actions/workflows/electron.yml)
 
-ScriptDeck is a way to execute preconfigured functions on your machine from any device with a browser in your local network.
+ScriptDeck is a way to execute preconfigured functions on your machine from any device with a browser in your local network. Downloads [here](https://github.com/PhoenixGames-Phoenix/ScriptDeck/releases/latest).
 
 ## WIP
 
