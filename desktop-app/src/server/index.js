@@ -9,8 +9,6 @@ module.exports.start = function() {
         fs.mkdirSync(globalPath + '/data/');
         fs.writeFileSync(globalPath + '/data/grid.json', '{ "type": "grid", "buttons": [] }');
     }
-    if (!fs.existsSync(globalPath + '/scripts/')) fs.mkdirSync(globalPath + '/scripts/');
-    if (!fs.existsSync(globalPath + '/plugins/')) fs.mkdirSync(globalPath + '/plugins/');
     
     let grid = JSON.parse(fs.readFileSync(globalPath + '/data/grid.json'));
     

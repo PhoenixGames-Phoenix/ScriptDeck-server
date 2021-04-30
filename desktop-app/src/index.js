@@ -37,6 +37,8 @@ module.exports.globalPath = app.getPath('userData');
 // + DO NOT TOUCH +
 // ++++++++++++++++
 function start(paths) {
+  if (!fs.existsSync(app.getPath("userData") + '/scripts/')) fs.mkdirSync(app.getPath("userData") + '/scripts/');
+  if (!fs.existsSync(app.getPath("userData") + '/plugins/')) fs.mkdirSync(app.getPath("userData") + '/plugins/');
   let promises = [];
   paths.forEach((path) => {
     let dir = fs.readdirSync(path);
