@@ -25,6 +25,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "DerKeksTV",
+      "name": "Nils",
+      "avatar_url": "https://avatars.githubusercontent.com/u/51215873?v=4",
+      "profile": "https://github.com/DerKeksTV",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
