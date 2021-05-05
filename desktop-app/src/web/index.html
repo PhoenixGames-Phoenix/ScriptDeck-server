@@ -40,14 +40,16 @@
                     switch (object.type) {
                         case "gridUpdate":
                             fetch("http://localhost:4654/grid").then((response) => {
-                                globalGrid = JSON.parse(response.json());
-                                globalGrid.buttons.forEach(element => {
-                                    const button = document.getElementsByClassName('ScriptButton')[element.pos];
-                                    if (element.name == "") element.name = "No Name"
-                                    const name = element.name.split(" ");
-                                    button.innerHTML = `<i class="material-icons">${element.icon}</i>\n ${name[0] + " " + (name[1] || "")}`;
-                                    button.setAttribute("onClick", `scriptbutton("${element.script}", "${element.args}")`);
-                                    button.setAttribute("data-script", element.script);
+                                response.text().then((json) => {
+                                    globalGrid = JSON.parse(json);
+                                    globalGrid.buttons.forEach(element => {
+                                        const button = document.getElementsByClassName('ScriptButton')[element.pos];
+                                        if (element.name == "") element.name = "No Name"
+                                        const name = element.name.split(" ");
+                                        button.innerHTML = `<i class="material-icons">${element.icon}</i>\n ${name[0] + " " + (name[1] || "")}`;
+                                        button.setAttribute("onClick", `scriptbutton("${element.script}", "${element.args}")`);
+                                        button.setAttribute("data-script", element.script);
+                                    })
                                 })
                             })
                             break;
@@ -107,16 +109,14 @@
                 return true;
             }
 
-            const scriptws = new WebSocket('ws://localhost:4445');
-
             async function scriptbutton(script, args) {
                 const data = {
                     "script": script,
                     "args": args,
                 }
                 console.log("[DEBUG] " + JSON.stringify(data).toString());
-                await scriptws.send(JSON.stringify(data).toString());
-                scriptws.onerror = async (error) => {
+                await cfgws.send("runScript " + JSON.stringify(data).toString());
+                cfgws.onerror = async (error) => {
                     await window.alert(error);
                 }
             }

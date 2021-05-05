@@ -179,40 +179,27 @@ module.exports.start = function() {
                         open(globalPath + "/plugins/");
                         break;
                 }
+            } else if (data.startsWith("runScript")) {
+                console.log(data);
+                let json = data.substring(10);
+                console.log(json);
+                json = JSON.parse(json);
+                if (!scripts.has(json.script)) return;
+                const script = scripts.get(json.script);
+                try {
+                    console.log('[INFO] Script "' + json.script + '" executed');
+                    if (json.args) {
+                        script.execute(API, json.args);
+                    } else {
+                        script.execute(API);
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+
             } else {
-                socket.send("This is the Config Websocket Server for ScriptDeck. If you want to interact with this websocket, use the Web Interface on Port 4654");
+                socket.send("This is the Websocket Server for ScriptDeck. If you want to interact with this websocket, use the Web Interface on Port 4654");
             }
         });
-    })
-    
-    const scriptws = new ws.Server({
-        port: 4445
-    });
-    
-    scriptws.on('connection', (socket, req) => {
-        console.log('[INFO] ScriptWS connection from ' + req.connection.remoteAddress);
-        socket.on('message', (data) => {
-            // console.log(data);
-            data = JSON.parse(data.toString());
-            if (!scripts.has(data.script)) return socket.emit('error', new Error('404: Unknwon Script!'));
-            const script = scripts.get(data.script);
-            try {
-                console.log('[INFO] Script "' + data.script + '" executed from ' + req.connection.remoteAddress);
-                if (data.args) {
-                    script.execute(API, data.args);
-                } else {
-                    script.execute(API);
-                }
-                
-            } catch (error) {
-                console.error(error);
-                socket.emit('error', new Error('404: Unknwon Script!'));
-            }
-        })
-        socket.on('error', () => {
-        })
-        socket.on('close', (code, reason) => {
-            console.log('[INFO] ' + req.connection.remoteAddress + ' closed connection with code ' + code + ' because of "' + reason + '"')
-        })
     })
 }
