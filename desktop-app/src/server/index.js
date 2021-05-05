@@ -3,6 +3,7 @@ const express = require('express');
 const fs = require('fs');
 const open = require('open');
 const globalPath = require('../index.js').globalPath;
+const { urlencoded } = require('express');
 
 module.exports.start = function() {
     if (!fs.existsSync(globalPath + '/data/')) {
@@ -116,10 +117,21 @@ module.exports.start = function() {
     const ControlApp = express();
     
     ControlApp.use(express.static('./web/'));
+    ControlApp.use(express.json());
     
     ControlApp.get('/scripts/:script', function (req, res) {
         const src = fs.readFileSync(globalPath + '/scripts/' + req.params.script + '/' + req.params.script + '.js').toString();
         res.send(src);
+    })
+
+    ControlApp.get('/scripts', function (req, res) {
+        const scriptList = fs.readdirSync(globalPath + '/scripts/');
+        res.send(JSON.stringify(scriptList));
+    })
+
+    ControlApp.get('/grid', function (req, res) {
+        const grid = fs.readFileSync(globalPath + '/data/grid.json').toString();
+        res.send(grid);
     })
     
     try {
@@ -142,26 +154,13 @@ module.exports.start = function() {
             sockets = sockets.filter(s => s !== socket);
         })
         socket.on("message", (data) => {
-            if (data.startsWith("gridReq")) {
-                grid = JSON.parse(fs.readFileSync(globalPath + '/data/grid.json'));
-                console.log("[INFO] Grid Request from " + req.connection.remoteAddress);
-                socket.send(JSON.stringify(grid));
-            } else if (data.startsWith("scriptReq")) {
-                socket.send(JSON.stringify(scriptsList));
-                console.log("[INFO] Script List Request from " + req.connection.remoteAddress);
-            } else if (data.startsWith("gridPost")) {
+            if (data.startsWith("gridPost")) {
                 const PostData = data.substring(9);
                 console.log("[INFO] Script Post Request from " + req.connection.remoteAddress);
                 // console.log("[INFO] Data: " + PostData);
                 fs.truncateSync(globalPath + "/data/grid.json", 0);
                 fs.writeFileSync(globalPath + "/data/grid.json", PostData);
-                grid = JSON.parse(fs.readFileSync(globalPath + '/data/grid.json'));
-                const updateData = {
-                    type: "gridUpdate",
-                    grid: grid
-                }
-                console.log(JSON.stringify(updateData));
-                broadcast(sockets, JSON.stringify(updateData));
+                broadcast(sockets, '{ "type": "gridUpdate" }');
             } else if (data.startsWith("reloadReq")) {
                 scriptsDir = fs.readdirSync(globalPath + '/scripts/').filter((file) => file.endsWith('.js'));
                 for (const file of scriptsDir) {

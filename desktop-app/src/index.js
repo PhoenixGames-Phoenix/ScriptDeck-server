@@ -1,4 +1,5 @@
 const { app, BrowserWindow } = require('electron');
+const sc = require('electron-localshortcut');
 const fs = require('fs');
 const path = require('path');
 const npmi = require('npmi');
@@ -11,6 +12,14 @@ const createWindow = () => {
   });
   mainWindow.loadFile(path.join(__dirname, '/web/index.html'));
   mainWindow.removeMenu();
+
+  sc.register(mainWindow, 'F12', () => {
+    mainWindow.webContents.toggleDevTools();
+  })
+
+  sc.register(mainWindow, 'F5', () => {
+    mainWindow.reload();
+  })
 };
 
 app.on('window-all-closed', () => {

@@ -8,41 +8,48 @@
             const cfgws = new WebSocket('ws://localhost:4655');
 
             cfgws.onopen = (event) => {
-                cfgws.send('gridReq');
-                cfgws.send('scriptReq');
+                fetch("http://localhost:4654/grid").then((response) => {
+                    response.text().then((json) => {
+                        globalGrid = JSON.parse(json);
+                        globalGrid.buttons.forEach(element => {
+                            const button = document.getElementsByClassName('ScriptButton')[element.pos];
+                            if (element.name == "") element.name = "No Name"
+                            const name = element.name.split(" ");
+                            button.innerHTML = `<i class="material-icons">${element.icon}</i>\n ${name[0] + " " + (name[1] || "")}`;
+                            button.setAttribute("onClick", `scriptbutton("${element.script}", "${element.args}")`);
+                            button.setAttribute("data-script", element.script);
+                        })
+                    });
+                })
+                fetch("http://localhost:4654/scripts").then((response) => {
+                    response.text().then((json) => {
+                        let obj = JSON.parse(json);
+                        for (let i = 0; i < obj.length; i++) {
+                            const element = obj[i];
+                            var item = document.createElement("p");
+                            item.setAttribute("class", "sciptListItem");
+                            item.innerHTML = '<i class="material-icons md-24" style="padding-left: 10px; padding-right: 10px;">extension</i>' + element + ' (<a class="link" href="src.html?script=' + element + '">Source</a>)';
+                            document.getElementsByClassName('SelectScriptList')[0].appendChild(item);
+                        }
+                    })
+                })
             }
             cfgws.onmessage = (event) => {
                 if (IsJsonString(event.data)) {
                     const object = JSON.parse(event.data);
                     switch (object.type) {
-                        case "grid":
-                            globalGrid = JSON.parse(event.data);
-                            object.buttons.forEach(element => {
-                                const button = document.getElementsByClassName('ScriptButton')[element.pos];
-                                if (element.name == "") element.name = "No Name"
-                                const name = element.name.split(" ");
-                                button.innerHTML = `<i class="material-icons">${element.icon}</i>\n ${name[0] + " " + (name[1] || "")}`;
-                                button.setAttribute("onClick", `scriptbutton("${element.script}", "${element.args}")`);
-                                button.setAttribute("data-script", element.script);
-                            });
-                            break;
                         case "gridUpdate":
-                            object.grid.buttons.forEach(element => {
-                                const button = document.getElementsByClassName('ScriptButton')[element.pos];
-                                if (element.name == "") element.name = "No Name"
-                                const name = element.name.split(" ");
-                                button.innerHTML = `<i class="material-icons">${element.icon}</i>\n ${name[0] + " " + (name[1] || "")}`;
-                                button.setAttribute("onClick", `scriptbutton("${element.script}", "${element.args || null}")`);
-                            });
-                            break;
-                        case "scriptList":
-                            for (let i = 0; i < object.list.length; i++) {
-                                const element = object.list[i];
-                                var item = document.createElement("p");
-                                item.setAttribute("class", "sciptListItem");
-                                item.innerHTML = '<i class="material-icons md-24" style="padding-left: 10px; padding-right: 10px;">extension</i>' + element + ' (<a class="link" href="src.html?script=' + element + '">Source</a>)';
-                                document.getElementsByClassName('SelectScriptList')[0].appendChild(item);
-                            }
+                            fetch("http://localhost:4654/grid").then((response) => {
+                                globalGrid = JSON.parse(response.json());
+                                globalGrid.buttons.forEach(element => {
+                                    const button = document.getElementsByClassName('ScriptButton')[element.pos];
+                                    if (element.name == "") element.name = "No Name"
+                                    const name = element.name.split(" ");
+                                    button.innerHTML = `<i class="material-icons">${element.icon}</i>\n ${name[0] + " " + (name[1] || "")}`;
+                                    button.setAttribute("onClick", `scriptbutton("${element.script}", "${element.args}")`);
+                                    button.setAttribute("data-script", element.script);
+                                })
+                            })
                             break;
                         case "setButtonState":
                             const buttons = document.querySelectorAll(`[data-script="${object.script}"]`);
