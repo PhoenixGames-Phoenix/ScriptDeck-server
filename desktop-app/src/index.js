@@ -22,9 +22,6 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
 });
 
 module.exports.globalPath = app.getPath('userData');
@@ -61,6 +58,9 @@ function start(paths) {
   Promise.all(promises).then(() => {
     const server = require('./server/index');
     server.start();
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
   })
 }
 const paths = [`${this.globalPath}/scripts/`, `${this.globalPath}/plugins/`];

@@ -1,10 +1,3 @@
-// ######################################################
-// 
-// CHANGE THE obs-websocket DEFAULT PORT TO 8000!!!!
-// PORT 4444 IS ALREADY USED!
-//
-// #######################################################
-
 const obswsjs = require('obs-websocket-js');
 const fs = require('fs');
 const config = JSON.parse(fs.readFileSync(__dirname + '/obs-websocket.json'));

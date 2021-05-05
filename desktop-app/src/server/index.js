@@ -142,7 +142,7 @@ module.exports.start = function() {
         process.exit(1);
     }
     console.log('[INFO] Config Web server listening on Port 4654');
-    console.log('[WARN] Do not Expose Port 4654, 4655 or 4444. This would allow anyone to access and execute your scripts!');
+    console.log('[WARN] Do not Expose Port 4654, 4655 or 4445. This would allow anyone to access and execute your scripts!');
     
     const cfgws = new ws.Server({
         port: 4655
@@ -200,7 +200,7 @@ module.exports.start = function() {
     })
     
     const scriptws = new ws.Server({
-        port: 4444
+        port: 4445
     });
     
     scriptws.on('connection', (socket, req) => {
