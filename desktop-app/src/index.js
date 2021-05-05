@@ -13,15 +13,10 @@ const createWindow = () => {
   mainWindow.removeMenu();
 };
 
-app.on('ready', createWindow);
-
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
-});
-
-app.on('activate', () => {
 });
 
 module.exports.globalPath = app.getPath('userData');
@@ -58,9 +53,7 @@ function start(paths) {
   Promise.all(promises).then(() => {
     const server = require('./server/index');
     server.start();
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
+    createWindow();
   })
 }
 const paths = [`${this.globalPath}/scripts/`, `${this.globalPath}/plugins/`];

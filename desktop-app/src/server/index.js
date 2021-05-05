@@ -118,21 +118,8 @@ module.exports.start = function() {
     ControlApp.use(express.static('./web/'));
     
     ControlApp.get('/scripts/:script', function (req, res) {
-        const src = fs.readFileSync(globalPath + '/scripts/' + req.params.script + '.js').toString();
+        const src = fs.readFileSync(globalPath + '/scripts/' + req.params.script + '/' + req.params.script + '.js').toString();
         res.send(src);
-    })
-    
-    ControlApp.get('/', function(req, res) {
-        const index = fs.readFileSync(globalPath + '/web/index.html').toString();
-        res.send(index);
-    });
-    ControlApp.get('/src', function(req, res) {
-        const src = fs.readFileSync(globalPath + '/web/src.html').toString();
-        res.send(src);
-    })
-    ControlApp.get('/favicon.ico', function(req, res) {
-        const ico = fs.readFileSync(globalPath + '/web/favicon.ico');
-        res.send(ico);
     })
     
     try {
