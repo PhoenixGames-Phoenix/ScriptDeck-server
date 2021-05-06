@@ -37,6 +37,9 @@ jobs:
           github_token: ${{ secrets.github_token }}
           package_root: ./desktop-app
 
+      - name: debug look at out folder
+        run: cd out && ls
+
       - name: Upload Windows Artifacts
         if: "contains( ${{ matrix.os }}, 'windows-latest' )"
         uses: actions/upload-artifact@v2.2.3
