@@ -45,21 +45,21 @@ jobs:
         uses: actions/upload-artifact@v2.2.3
         with:
           name: scriptdeck_windows_amd64.exe
-          path: out/scriptdeck Setup ?.?.?.exe
-          if-no-files-found: error
+          path: out/*.exe
+          if-no-files-found: warn
 
       - name: Upload Linux AppImage
         if: "contains( ${{ matrix.os }}, 'ubuntu-latest' )"
         uses: actions/upload-artifact@v2.2.3
         with:
           name: scriptdeck_linux_amd64.AppImage
-          path: out/scriptdeck-?.?.?.AppImage
-          if-no-files-found: error
+          path: out/*.AppImage
+          if-no-files-found: warn
 
       - name: Upload Linux deb
         if: "contains( ${{ matrix.os }}, 'ubuntu-latest' )"
         uses: actions/upload-artifact@v2.2.3
         with:
           name: scriptdeck_linux_amd64.deb
-          path: out/scriptdeck-desktop_?.?.?_amd64.deb
-          if-no-files-found: error
+          path: out/*.deb
+          if-no-files-found: warn
