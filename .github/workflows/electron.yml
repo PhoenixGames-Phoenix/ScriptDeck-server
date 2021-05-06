@@ -45,7 +45,7 @@ jobs:
         uses: actions/upload-artifact@v2.2.3
         with:
           name: scriptdeck_windows_amd64.exe
-          path: "out/scriptdek Setup ?.?.?.exe"
+          path: out/scriptdek Setup ?.?.?.exe
           if-no-files-found: error
 
       - name: Upload Linux AppImage
