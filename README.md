@@ -14,7 +14,7 @@ ScriptDeck is a way to execute preconfigured functions on your machine from any 
 
 ## WIP
 
-This Project is still Work In Progess. Both the desktop and mobile app are not yet finished and are not available for installation. You can help out by opening pull requests, reporting bugs using issues or sending suggestions on my [discord server](https://discord.gg/gTwuaHW)
+This Project is still Work In Progess. The desktop app is not completely finished, while the mobile app doesn't exist yet. Stable builds can be found [here](https://github.com/PhoenixGames-Phoenix/ScriptDeck/releases/latest). You can help out by opening pull requests, reporting bugs using issues or sending suggestions on my [discord server](https://discord.gg/gTwuaHW)
 
 ## Development Setup (desktop-app)
 
