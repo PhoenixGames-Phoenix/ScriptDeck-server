@@ -36,14 +36,13 @@ jobs:
         with:
           github_token: ${{ secrets.github_token }}
           package_root: ./desktop-app
-          release: ${{ startsWith(github.ref, 'ref/tags/v') }}
 
       - name: Upload Windows Artifacts
         if: "contains( ${{ matrix.os }}, 'windows-latest' )"
         uses: actions/upload-artifact@v2.2.3
         with:
           name: scriptdeck_windows_amd64.exe
-          path: .\\out\\*.exe
+          path: out/?.exe
           if-no-files-found: error
 
       - name: Upload Linux AppImage
@@ -51,7 +50,7 @@ jobs:
         uses: actions/upload-artifact@v2.2.3
         with:
           name: scriptdeck_linux_amd64.AppImage
-          path: ./out/*.AppImage
+          path: out/?.AppImage
           if-no-files-found: error
 
       - name: Upload Linux deb
@@ -59,5 +58,5 @@ jobs:
         uses: actions/upload-artifact@v2.2.3
         with:
           name: scriptdeck_linux_amd64.deb
-          path: ./out/*.deb
+          path: /out/?.deb
           if-no-files-found: error
