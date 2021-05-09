@@ -14,17 +14,19 @@ ScriptDeck is a way to execute preconfigured functions on your machine from any 
 
 ## WIP
 
-This Project is still Work In Progess. The desktop app is not completely finished, while the mobile app doesn't exist yet. Stable builds can be found [here](https://github.com/PhoenixGames-Phoenix/ScriptDeck/releases/latest). You can help out by opening pull requests, reporting bugs using issues or sending suggestions on my [discord server](https://discord.gg/gTwuaHW)
+This Project is still Work In Progess. You can help out by opening pull requests, reporting bugs using issues or sending suggestions on my [discord server](https://discord.gg/gTwuaHW). The current roadmap can be found [here](https://github.com/PhoenixGames-Phoenix/ScriptDeck/projects/1).
 
 ## Development Setup (desktop-app)
 
 Prerequisites:
 
+- [git](https://git-scm.com/)
 - [Node.js 14](https://nodejs.org/en/download/)
 
-1. Clone the git repository
+1. Clone the git repository using `git clone https://github.com/PhoenixGames-Phoenix/ScriptDeck`
 2. Run `npm i` in the desktop-app directory to install the required dependencies
-3. For starting the desktop app use `npm run start` or `(npx) electron .`, for building (not recommended, installed versions are not fully functional) run `(npx) electron-builder --<windows | linux | macos> -c electron_builder.yml`
+3. For starting the desktop app use `(npx) electron .`
+4. For building run `(npx) electron-builder --<windows | linux> -c electron_builder.yml`
 
 ## Contributors ✨
 
