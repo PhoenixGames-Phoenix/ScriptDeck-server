@@ -3,12 +3,11 @@ const express = require('express');
 const fs = require('fs');
 const open = require('open');
 const globalPath = require('../index.js').globalPath;
-const { urlencoded } = require('express');
 
 module.exports.start = function() {
     if (!fs.existsSync(globalPath + '/data/')) {
         fs.mkdirSync(globalPath + '/data/');
-        fs.writeFileSync(globalPath + '/data/grid.json', '{ "type": "grid", "buttons": [] }');
+        fs.writeFileSync(globalPath + '/data/grid.json', '{ "type": "grid", "current": 0, "folders": [{ "name": "Main Folder", "buttons": []}] }');
     }
     
     let grid = JSON.parse(fs.readFileSync(globalPath + '/data/grid.json'));
@@ -57,11 +56,18 @@ module.exports.start = function() {
             broadcast(sockets, JSON.stringify(data));
         },
         /**
-         * Returns the current button grid
+         * Returns all button grids
          * @returns {object} - Grid
          */
-        async getGrid() {
+        async getAllGrids() {
             return grid;   
+        },
+        /**
+         * Returns the current button grid
+         * @returns {object} - Current Grid
+         */
+        async getGrid() {
+            return grid.folders[grid.current];
         },
         /**
          * Sends an alert to all connected clients
@@ -129,9 +135,36 @@ module.exports.start = function() {
         res.send(JSON.stringify(scriptList));
     })
 
-    ControlApp.get('/grid', function (req, res) {
-        const grid = fs.readFileSync(globalPath + '/data/grid.json').toString();
-        res.send(grid);
+    ControlApp.get('/data', function (req, res) {
+        grid = JSON.parse(fs.readFileSync(globalPath + '/data/grid.json').toString());
+        res.send(JSON.stringify(grid));
+    })
+
+    ControlApp.get('/grid/:index', function (req, res) {
+        grid = JSON.parse(fs.readFileSync(globalPath + '/data/grid.json').toString());
+        let data = grid.folders[req.params.index];
+        res.send(JSON.stringify(data));
+    })
+    
+    ControlApp.get('/folders', function (req, res) {
+        grid = JSON.parse(fs.readFileSync(globalPath + '/data/grid.json').toString());
+        let folderArray = [];
+        for (let i = 0; i < grid.folders.length; i++) {
+            folderArray[i] = grid.folders[i].name;
+        }
+        res.send(JSON.stringify(folderArray));
+    })
+
+    ControlApp.get('/folders/current', function (req, res) {
+        grid = JSON.parse(fs.readFileSync(globalPath + '/data/grid.json').toString());
+        let data = {
+            type: "currentFolder",
+            current: {
+                id: grid.current,
+                name: grid.folders[grid.current].name
+            }
+        }
+        res.send(JSON.stringify(data));
     })
     
     try {
@@ -141,7 +174,7 @@ module.exports.start = function() {
         process.exit(1);
     }
     console.log('[INFO] Config Web server listening on Port 4654');
-    console.log('[WARN] Do not Expose Port 4654, 4655 or 4445. This would allow anyone to access and execute your scripts!');
+    console.log('[WARN] Do not Expose Port 4654 or 4655. This would allow anyone to access and execute your scripts!');
     
     const cfgws = new ws.Server({
         port: 4655
@@ -155,12 +188,16 @@ module.exports.start = function() {
         })
         socket.on("message", (data) => {
             if (data.startsWith("gridPost")) {
-                const PostData = data.substring(9);
+                const PostData = JSON.parse(data.substring(9));
                 console.log("[INFO] Script Post Request from " + req.connection.remoteAddress);
                 // console.log("[INFO] Data: " + PostData);
-                fs.truncateSync(globalPath + "/data/grid.json", 0);
-                fs.writeFileSync(globalPath + "/data/grid.json", PostData);
-                broadcast(sockets, '{ "type": "gridUpdate" }');
+                let changedFolder = grid.folders[PostData.folder]
+                changedFolder.buttons = PostData.buttons
+                changedFolder.name = PostData.name
+                grid.folders[PostData.folder] = changedFolder;
+                fs.truncateSync(globalPath + "/data/grid.json");
+                fs.writeFileSync(globalPath + "/data/grid.json", JSON.stringify())
+                broadcast(sockets, `{ "type": "gridUpdate", "folder": ${PostData.folder} }`);
             } else if (data.startsWith("reloadReq")) {
                 scriptsDir = fs.readdirSync(globalPath + '/scripts/').filter((file) => file.endsWith('.js'));
                 for (const file of scriptsDir) {
@@ -180,9 +217,9 @@ module.exports.start = function() {
                         break;
                 }
             } else if (data.startsWith("runScript")) {
-                console.log(data);
+                // console.log(data);
                 let json = data.substring(10);
-                console.log(json);
+                // console.log(json);
                 json = JSON.parse(json);
                 if (!scripts.has(json.script)) return;
                 const script = scripts.get(json.script);
@@ -197,6 +234,24 @@ module.exports.start = function() {
                     console.error(error);
                 }
 
+            } else if (JSON.parse(data).type == "folderChange") {
+                let json = JSON.parse(data);
+                grid.current = json.folder;
+                fs.truncateSync(globalPath + '/data/grid.json');
+                fs.writeFileSync(globalPath + '/data/grid.json', JSON.stringify(grid));
+                let resData = {
+                    type: "folderChange",
+                    folder: grid.current
+                }
+                broadcast(sockets, JSON.stringify(resData));
+            } else if (JSON.parse(data).type == "folderUpdate") {
+                let json = JSON.parse(data);
+                if (json.folder) {
+                    grid.folders.push(json.folder);
+                    fs.truncateSync(globalPath + '/data/grid.json');
+                    fs.writeFileSync(globalPath + '/data/grid.json', JSON.stringify(grid));
+                    broadcast(sockets, '{"type": "folderUpdate"}');
+                }
             } else {
                 socket.send("This is the Websocket Server for ScriptDeck. If you want to interact with this websocket, use the Web Interface on Port 4654");
             }
