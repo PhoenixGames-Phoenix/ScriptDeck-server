@@ -23,7 +23,7 @@ module.exports = {
            await API.sendMessage('Connection to OBS Lost');
         })
         obs.on('SwitchScenes', async (data) => {
-           const grid = await JSON.parse(await getGrid());
+           const grid = await JSON.parse(await API.getGrid(await API.getCurrentFolder()));
            grid.buttons.forEach(async (element) => {
                if (element.args.split(',').includes(data['scene-name'].toString())) {
                    await API.SetButtonStateById(true,element.pos);

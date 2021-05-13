@@ -30,7 +30,7 @@ module.exports.start = function() {
         //  true = disables button and displays it as active
         //  false = enables button and displays it as inactive
         /** 
-         * Sets the state of a button using the name of the script
+         * Sets the state of a button in the current grid using the name of the script
          * @param {bool} - Active/unactive
          * @param {String} - Script name
          */
@@ -43,7 +43,7 @@ module.exports.start = function() {
             broadcast(sockets, JSON.stringify(data));
         },
         /**
-         * Sets the state of a button using the ID of the button
+         * Sets the state of a button on the current grid using the ID of the button
          * @param {bool} - Active/unactive
          * @param {String} - ID as string
          */
@@ -56,6 +56,38 @@ module.exports.start = function() {
             broadcast(sockets, JSON.stringify(data));
         },
         /**
+         * Switches Folder to the given index
+         * @param {Number} - Index of Folder
+         */
+        async switchFolder(index) {
+            if (grid.folders[index]) {
+                const data = {
+                    type: "folderChange",
+                    folder: index
+                }
+                broadcast(sockets, JSON.stringify(data));
+            } else {
+                console.warn("[WARN] A Plugin or Script tried to switch to a non-existent folder");
+            }
+        },
+        /**
+         * Gets an Array of all Folder Names in correct oder
+         * @returns {Array[String]} - Array of Folder Names
+         */
+        async getFolders() {
+            let returnArray = new Array[String];
+            for (let i = 0; i < grid.folders.length; i++) {
+                returnArray[i] = grid.folders[i].name
+            }
+        },
+        /**
+         * Returns the index of the current Folder
+         * @returns {Number} - Index of Current Folder
+         */
+        async getCurrentFolder() {
+            return grid.current;
+        },
+        /**
          * Returns all button grids
          * @returns {object} - Grid
          */
@@ -66,8 +98,8 @@ module.exports.start = function() {
          * Returns the current button grid
          * @returns {object} - Current Grid
          */
-        async getGrid() {
-            return grid.folders[grid.current];
+        async getGrid(index) {
+            return grid.folders[index];
         },
         /**
          * Sends an alert to all connected clients
