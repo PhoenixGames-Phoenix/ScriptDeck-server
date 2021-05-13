@@ -71,7 +71,7 @@ module.exports.start = function() {
             }
         },
         /**
-         * Gets an Array of all Folder Names in correct oder
+         * Gets an Array of all Folder Names in correct order
          * @returns {Array[String]} - Array of Folder Names
          */
         async getFolders() {
@@ -95,8 +95,9 @@ module.exports.start = function() {
             return grid;   
         },
         /**
-         * Returns the current button grid
-         * @returns {object} - Current Grid
+         * Returns the button grid with the given Index
+         * @param {Number} - Folder Index
+         * @returns {object} - Folder Grid
          */
         async getGrid(index) {
             return grid.folders[index];
