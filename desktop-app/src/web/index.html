@@ -28,21 +28,7 @@
                             button.setAttribute("onClick", `scriptbutton("${element.script}", "${element.args}")`);
                             button.setAttribute("data-script", element.script);
                         })
-                        fetch("http://localhost:4654/folders").then((response) => {
-                            response.text().then((json) => {
-                                folders = JSON.parse(json);
-                                let ddl = document.getElementById('FolderSelect');
-                                ddl.innerHTML = "";
-                                ddl.innerHTML += `<option value=${globalGrid.current} class="FolderSelectOption">${folders[globalGrid.current]}</option>`;
-                                let i = 0;
-                                for (i = 0; i < folders.length; i++) {
-                                    folderMap.set(i, folders[i]);
-                                    if (i !== globalGrid.current) {
-                                        ddl.innerHTML += `<option value=${i} class="FolderSelectOption">${folders[i]}</option>`
-                                    }
-                                }
-                            })
-                        })
+                        reloadFolderList();
                     });
                 })
                 fetch("http://localhost:4654/scripts").then((response) => {
@@ -67,7 +53,7 @@
                                 response.text().then((json) => {
                                     globalGrid.folders[object.folder] = JSON.parse(json);
                                     let elements = document.getElementsByClassName('ScriptButton');
-                                    for (let i = 0; i < elements.length, i++;) {
+                                    for (let i = 0; i < elements.length; i++) {
                                         let element = elements[i];
                                         element.innerHTML = "";
                                         element.removeAttribute("onClick");
@@ -123,21 +109,7 @@
                                     })
                                 });
                             })
-                            fetch("http://localhost:4654/folders").then((response) => {
-                                response.text().then((json) => {
-                                    folders = JSON.parse(json);
-                                    let ddl = document.getElementById('FolderSelect');
-                                    ddl.innerHTML = "";
-                                    ddl.innerHTML += `<option value=${globalGrid.current} class="FolderSelectOption">${folders[globalGrid.current]}</option>`;
-                                    let i = 0;
-                                    for (i = 0; i < folders.length; i++) {
-                                        folderMap.set(i, folders[i]);
-                                        if (i !== globalGrid.current) {
-                                            ddl.innerHTML += `<option value=${i} class="FolderSelectOption">${folders[i]}</option>`
-                                        }
-                                    }
-                                })
-                            })
+                            reloadFolderList();
                             break;
                         case "setButtonState":
                             const buttons = document.querySelectorAll(`[data-script="${object.script}"]`);
@@ -197,14 +169,32 @@
 
             async function scriptbutton(script, args) {
                 const data = {
+                    "type": "runScript",
                     "script": script,
                     "args": args,
                 }
-                console.log("[DEBUG] " + JSON.stringify(data).toString());
-                await cfgws.send("runScript " + JSON.stringify(data).toString());
+                console.log("[DEBUG] " + JSON.stringify(data));
+                await cfgws.send(JSON.stringify(data));
                 cfgws.onerror = async (error) => {
                     await window.alert(error);
                 }
+            }
+            function reloadFolderList() {
+                fetch("http://localhost:4654/folders").then((response) => {
+                    response.text().then((json) => {
+                        folders = JSON.parse(json);
+                        let ddl = document.getElementById('FolderSelect');
+                        ddl.innerHTML = "";
+                        ddl.innerHTML += `<option value=${globalGrid.current} class="FolderSelectOption">${folders[globalGrid.current]}</option>`;
+                        let i = 0;
+                        for (i = 0; i < folders.length; i++) {
+                            folderMap.set(i, folders[i]);
+                            if (i !== globalGrid.current) {
+                                ddl.innerHTML += `<option value=${i} class="FolderSelectOption">${folders[i]}</option>`
+                            }
+                        }
+                    })
+                })
             }
             async function IconInput(val) {
                 if (val != "") {
@@ -220,7 +210,6 @@
                 } else {
                     document.getElementsByClassName("PreviewScriptButton")[0].innerHTML = `<i class="material-icons" id="PreviewScriptButtonImage">${document.getElementById("PreviewScriptButtonImage").innerHTML || "description"}</i>\nNo Name`;
                 }
-
             }
             function allowDrop(event) {
                 event.preventDefault();
@@ -257,11 +246,12 @@
 
 
                 let postData = {
+                    type: "gridPost",
                     folder: globalGrid.current,
                     name: globalGrid.folders[globalGrid.current].name,
                     buttons: globalGrid.folders[globalGrid.current].buttons
                 }
-                cfgws.send("gridPost " + JSON.stringify(postData));
+                cfgws.send(JSON.stringify(postData));
                 document.getElementsByClassName("NameInput")[0].value = "";
                 document.getElementsByClassName("IconInput")[0].value = "";
                 document.getElementsByClassName("ScriptInput")[0].value = "";
@@ -279,7 +269,11 @@
                 cfgws.send('scriptReq');
             } */
             function openFolder(folder) {
-                cfgws.send("openFolder " + folder);
+                let data = {
+                    type: "openFolder",
+                    folder: folder
+                }
+                cfgws.send(JSON.stringify(data));
             } 
             function RAINBOW() {
                 let buttons = document.getElementsByClassName("ScriptButton");

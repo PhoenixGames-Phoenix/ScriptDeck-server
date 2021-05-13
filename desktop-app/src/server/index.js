@@ -119,6 +119,14 @@ module.exports.start = function() {
         console.log("[INFO] Scripts loaded! Loaded " + i + " Script(s)");
     }
     loadScripts();
+    function IsJsonString(str) {
+        try {
+            JSON.parse(str);
+        } catch (e) {
+            return false;
+        }
+        return true;
+    }
     
     const ControlApp = express();
     
@@ -187,70 +195,60 @@ module.exports.start = function() {
             sockets = sockets.filter(s => s !== socket);
         })
         socket.on("message", (data) => {
-            if (data.startsWith("gridPost")) {
-                const PostData = JSON.parse(data.substring(9));
-                console.log("[INFO] Script Post Request from " + req.connection.remoteAddress);
-                // console.log("[INFO] Data: " + PostData);
-                let changedFolder = grid.folders[PostData.folder]
-                changedFolder.buttons = PostData.buttons
-                changedFolder.name = PostData.name
-                grid.folders[PostData.folder] = changedFolder;
-                fs.truncateSync(globalPath + "/data/grid.json");
-                fs.writeFileSync(globalPath + "/data/grid.json", JSON.stringify())
-                broadcast(sockets, `{ "type": "gridUpdate", "folder": ${PostData.folder} }`);
-            } else if (data.startsWith("reloadReq")) {
-                scriptsDir = fs.readdirSync(globalPath + '/scripts/').filter((file) => file.endsWith('.js'));
-                for (const file of scriptsDir) {
-                    delete require.cache[require.resolve(globalPath + "/scripts/" + file)];
-                }
-                loadScripts();
-                socket.send("reloadFinished");
-            } else if (data.startsWith("openFolder")) {
-                const folder = data.substring(11);
-                // Switch statement instead of direct user Input because we don't want users just being able to execute files, even if this only runs locally
-                switch (folder) {
-                    case "scripts":
-                        open(globalPath + "/scripts/");
-                        break;
-                    case "plugins":
-                        open(globalPath + "/plugins/");
-                        break;
-                }
-            } else if (data.startsWith("runScript")) {
-                // console.log(data);
-                let json = data.substring(10);
-                // console.log(json);
-                json = JSON.parse(json);
-                if (!scripts.has(json.script)) return;
-                const script = scripts.get(json.script);
-                try {
-                    console.log('[INFO] Script "' + json.script + '" executed');
-                    if (json.args) {
-                        script.execute(API, json.args);
-                    } else {
-                        script.execute(API);
-                    }
-                } catch (error) {
-                    console.error(error);
-                }
-
-            } else if (JSON.parse(data).type == "folderChange") {
+            if (IsJsonString(data)) {
                 let json = JSON.parse(data);
-                grid.current = json.folder;
-                fs.truncateSync(globalPath + '/data/grid.json');
-                fs.writeFileSync(globalPath + '/data/grid.json', JSON.stringify(grid));
-                let resData = {
-                    type: "folderChange",
-                    folder: grid.current
-                }
-                broadcast(sockets, JSON.stringify(resData));
-            } else if (JSON.parse(data).type == "folderUpdate") {
-                let json = JSON.parse(data);
-                if (json.folder) {
-                    grid.folders.push(json.folder);
-                    fs.truncateSync(globalPath + '/data/grid.json');
-                    fs.writeFileSync(globalPath + '/data/grid.json', JSON.stringify(grid));
-                    broadcast(sockets, '{"type": "folderUpdate"}');
+                switch (json.type) {
+                    case "runScript":
+                        if (!scripts.has(json.script)) return;
+                        const script = scripts.get(json.script);
+                        try {
+                            console.log('[INFO] Script "' + json.script + '" executed');
+                            if (json.args) {
+                                script.execute(API, json.args);
+                            } else {
+                                script.execute(API);
+                            }
+                        } catch (error) {
+                            console.error(error);
+                        }
+                        break;
+                    case "gridPost":
+                        let changedFolder = grid.folders[json.folder]
+                        changedFolder.buttons = json.buttons
+                        changedFolder.name = json.name
+                        grid.folders[json.folder] = changedFolder;
+                        fs.truncateSync(globalPath + "/data/grid.json");
+                        fs.writeFileSync(globalPath + "/data/grid.json", JSON.stringify(grid));
+                        broadcast(sockets, `{ "type": "gridUpdate", "folder": ${json.folder} }`);
+                        break;
+                    case "openFolder":
+                        switch (json.folder) {
+                            case "scripts":
+                                open(globalPath + "/scripts/");
+                                break;
+                            case "plugins":
+                                open(globalPath + "/plugins/");
+                                break;
+                        }
+                        break;
+                    case "folderChange":
+                        grid.current = json.folder;
+                        fs.truncateSync(globalPath + '/data/grid.json');
+                        fs.writeFileSync(globalPath + '/data/grid.json', JSON.stringify(grid));
+                        let resData = {
+                            type: "folderChange",
+                            folder: grid.current
+                        }
+                        broadcast(sockets, JSON.stringify(resData));
+                        break;
+                    case "folderUpdate":
+                        if (json.folder) {
+                            grid.folders.push(json.folder);
+                            fs.truncateSync(globalPath + '/data/grid.json');
+                            fs.writeFileSync(globalPath + '/data/grid.json', JSON.stringify(grid));
+                            broadcast(sockets, '{"type": "folderUpdate"}');
+                        }
+                        break;
                 }
             } else {
                 socket.send("This is the Websocket Server for ScriptDeck. If you want to interact with this websocket, use the Web Interface on Port 4654");
