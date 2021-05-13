@@ -3,12 +3,11 @@ const express = require('express');
 const fs = require('fs');
 const open = require('open');
 const globalPath = require('../index.js').globalPath;
-const { urlencoded } = require('express');
 
 module.exports.start = function() {
     if (!fs.existsSync(globalPath + '/data/')) {
         fs.mkdirSync(globalPath + '/data/');
-        fs.writeFileSync(globalPath + '/data/grid.json', '{ "type": "grid", "buttons": [] }');
+        fs.writeFileSync(globalPath + '/data/grid.json', '{ "type": "grid", "current": 0, "folders": [{ "name": "Main Folder", "buttons": []}] }');
     }
     
     let grid = JSON.parse(fs.readFileSync(globalPath + '/data/grid.json'));
@@ -31,7 +30,7 @@ module.exports.start = function() {
         //  true = disables button and displays it as active
         //  false = enables button and displays it as inactive
         /** 
-         * Sets the state of a button using the name of the script
+         * Sets the state of a button in the current grid using the name of the script
          * @param {bool} - Active/unactive
          * @param {String} - Script name
          */
@@ -44,7 +43,7 @@ module.exports.start = function() {
             broadcast(sockets, JSON.stringify(data));
         },
         /**
-         * Sets the state of a button using the ID of the button
+         * Sets the state of a button on the current grid using the ID of the button
          * @param {bool} - Active/unactive
          * @param {String} - ID as string
          */
@@ -57,11 +56,51 @@ module.exports.start = function() {
             broadcast(sockets, JSON.stringify(data));
         },
         /**
-         * Returns the current button grid
+         * Switches Folder to the given index
+         * @param {Number} - Index of Folder
+         */
+        async switchFolder(index) {
+            if (grid.folders[index]) {
+                const data = {
+                    type: "folderChange",
+                    folder: index
+                }
+                broadcast(sockets, JSON.stringify(data));
+            } else {
+                console.warn("[WARN] A Plugin or Script tried to switch to a non-existent folder");
+            }
+        },
+        /**
+         * Gets an Array of all Folder Names in correct order
+         * @returns {Array[String]} - Array of Folder Names
+         */
+        async getFolders() {
+            let returnArray = new Array[String];
+            for (let i = 0; i < grid.folders.length; i++) {
+                returnArray[i] = grid.folders[i].name
+            }
+        },
+        /**
+         * Returns the index of the current Folder
+         * @returns {Number} - Index of Current Folder
+         */
+        async getCurrentFolder() {
+            return grid.current;
+        },
+        /**
+         * Returns all button grids
          * @returns {object} - Grid
          */
-        async getGrid() {
+        async getAllGrids() {
             return grid;   
+        },
+        /**
+         * Returns the button grid with the given Index
+         * @param {Number} - Folder Index
+         * @returns {object} - Folder Grid
+         */
+        async getGrid(index) {
+            return grid.folders[index];
         },
         /**
          * Sends an alert to all connected clients
@@ -113,6 +152,14 @@ module.exports.start = function() {
         console.log("[INFO] Scripts loaded! Loaded " + i + " Script(s)");
     }
     loadScripts();
+    function IsJsonString(str) {
+        try {
+            JSON.parse(str);
+        } catch (e) {
+            return false;
+        }
+        return true;
+    }
     
     const ControlApp = express();
     
@@ -129,9 +176,36 @@ module.exports.start = function() {
         res.send(JSON.stringify(scriptList));
     })
 
-    ControlApp.get('/grid', function (req, res) {
-        const grid = fs.readFileSync(globalPath + '/data/grid.json').toString();
-        res.send(grid);
+    ControlApp.get('/data', function (req, res) {
+        grid = JSON.parse(fs.readFileSync(globalPath + '/data/grid.json').toString());
+        res.send(JSON.stringify(grid));
+    })
+
+    ControlApp.get('/grid/:index', function (req, res) {
+        grid = JSON.parse(fs.readFileSync(globalPath + '/data/grid.json').toString());
+        let data = grid.folders[req.params.index];
+        res.send(JSON.stringify(data));
+    })
+    
+    ControlApp.get('/folders', function (req, res) {
+        grid = JSON.parse(fs.readFileSync(globalPath + '/data/grid.json').toString());
+        let folderArray = [];
+        for (let i = 0; i < grid.folders.length; i++) {
+            folderArray[i] = grid.folders[i].name;
+        }
+        res.send(JSON.stringify(folderArray));
+    })
+
+    ControlApp.get('/folders/current', function (req, res) {
+        grid = JSON.parse(fs.readFileSync(globalPath + '/data/grid.json').toString());
+        let data = {
+            type: "currentFolder",
+            current: {
+                id: grid.current,
+                name: grid.folders[grid.current].name
+            }
+        }
+        res.send(JSON.stringify(data));
     })
     
     try {
@@ -141,7 +215,7 @@ module.exports.start = function() {
         process.exit(1);
     }
     console.log('[INFO] Config Web server listening on Port 4654');
-    console.log('[WARN] Do not Expose Port 4654, 4655 or 4445. This would allow anyone to access and execute your scripts!');
+    console.log('[WARN] Do not Expose Port 4654 or 4655. This would allow anyone to access and execute your scripts!');
     
     const cfgws = new ws.Server({
         port: 4655
@@ -154,49 +228,61 @@ module.exports.start = function() {
             sockets = sockets.filter(s => s !== socket);
         })
         socket.on("message", (data) => {
-            if (data.startsWith("gridPost")) {
-                const PostData = data.substring(9);
-                console.log("[INFO] Script Post Request from " + req.connection.remoteAddress);
-                // console.log("[INFO] Data: " + PostData);
-                fs.truncateSync(globalPath + "/data/grid.json", 0);
-                fs.writeFileSync(globalPath + "/data/grid.json", PostData);
-                broadcast(sockets, '{ "type": "gridUpdate" }');
-            } else if (data.startsWith("reloadReq")) {
-                scriptsDir = fs.readdirSync(globalPath + '/scripts/').filter((file) => file.endsWith('.js'));
-                for (const file of scriptsDir) {
-                    delete require.cache[require.resolve(globalPath + "/scripts/" + file)];
-                }
-                loadScripts();
-                socket.send("reloadFinished");
-            } else if (data.startsWith("openFolder")) {
-                const folder = data.substring(11);
-                // Switch statement instead of direct user Input because we don't want users just being able to execute files, even if this only runs locally
-                switch (folder) {
-                    case "scripts":
-                        open(globalPath + "/scripts/");
+            if (IsJsonString(data)) {
+                let json = JSON.parse(data);
+                switch (json.type) {
+                    case "runScript":
+                        if (!scripts.has(json.script)) return;
+                        const script = scripts.get(json.script);
+                        try {
+                            console.log('[INFO] Script "' + json.script + '" executed');
+                            if (json.args) {
+                                script.execute(API, json.args);
+                            } else {
+                                script.execute(API);
+                            }
+                        } catch (error) {
+                            console.error(error);
+                        }
                         break;
-                    case "plugins":
-                        open(globalPath + "/plugins/");
+                    case "gridPost":
+                        let changedFolder = grid.folders[json.folder]
+                        changedFolder.buttons = json.buttons
+                        changedFolder.name = json.name
+                        grid.folders[json.folder] = changedFolder;
+                        fs.truncateSync(globalPath + "/data/grid.json");
+                        fs.writeFileSync(globalPath + "/data/grid.json", JSON.stringify(grid));
+                        broadcast(sockets, `{ "type": "gridUpdate", "folder": ${json.folder} }`);
+                        break;
+                    case "openFolder":
+                        switch (json.folder) {
+                            case "scripts":
+                                open(globalPath + "/scripts/");
+                                break;
+                            case "plugins":
+                                open(globalPath + "/plugins/");
+                                break;
+                        }
+                        break;
+                    case "folderChange":
+                        grid.current = json.folder;
+                        fs.truncateSync(globalPath + '/data/grid.json');
+                        fs.writeFileSync(globalPath + '/data/grid.json', JSON.stringify(grid));
+                        let resData = {
+                            type: "folderChange",
+                            folder: grid.current
+                        }
+                        broadcast(sockets, JSON.stringify(resData));
+                        break;
+                    case "folderUpdate":
+                        if (json.folder) {
+                            grid.folders.push(json.folder);
+                            fs.truncateSync(globalPath + '/data/grid.json');
+                            fs.writeFileSync(globalPath + '/data/grid.json', JSON.stringify(grid));
+                            broadcast(sockets, '{"type": "folderUpdate"}');
+                        }
                         break;
                 }
-            } else if (data.startsWith("runScript")) {
-                console.log(data);
-                let json = data.substring(10);
-                console.log(json);
-                json = JSON.parse(json);
-                if (!scripts.has(json.script)) return;
-                const script = scripts.get(json.script);
-                try {
-                    console.log('[INFO] Script "' + json.script + '" executed');
-                    if (json.args) {
-                        script.execute(API, json.args);
-                    } else {
-                        script.execute(API);
-                    }
-                } catch (error) {
-                    console.error(error);
-                }
-
             } else {
                 socket.send("This is the Websocket Server for ScriptDeck. If you want to interact with this websocket, use the Web Interface on Port 4654");
             }
