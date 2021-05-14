@@ -25,8 +25,8 @@ Prerequisites:
 
 1. Clone the git repository using `git clone https://github.com/PhoenixGames-Phoenix/ScriptDeck`
 2. Run `npm i` in the desktop-app directory to install the required dependencies
-3. For starting the desktop app use `(npx) electron .`
-4. For building run `(npx) electron-builder --<windows | linux> -c electron_builder.yml`
+3. For starting the desktop app use `npm run scss && (npx) electron .`
+4. For building run `npm run scss && (npx) electron-builder --<windows | linux> -c electron_builder.yml`
 
 ## Contributors ✨
 

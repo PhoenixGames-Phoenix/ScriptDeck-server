@@ -31,6 +31,9 @@ jobs:
         with:
           node-version: 14
 
+      - name: Build SCSS
+        run: npm run scss
+
       - name: Build electron App
         uses: samuelmeuli/action-electron-builder@v1
         with:

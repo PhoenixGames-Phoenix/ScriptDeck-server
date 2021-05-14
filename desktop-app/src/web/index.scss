@@ -1,0 +1,219 @@
+$background-color: black;
+$button-background-color: rgb(56, 54, 54);
+$active-background-color: rgb(16, 94, 90);
+$text-color: teal;
+$text-shadow-color: lightseagreen;
+$active-text-color: rgb(0, 180, 180);
+$border-color: rgb(49, 49, 49);
+
+body {
+  font-family: Helvetica;
+  color: $text-color;
+  background-color: $background-color;
+}
+.TopBar {
+  border-bottom-style: solid;
+  border-bottom-color: $border-color;
+  border-bottom-width: 1px;
+  text-align: center;
+}
+.MainMenu {
+  overflow: hidden;
+}
+.Header {
+  text-align: center;
+  text-shadow: $text-shadow-color 1px 0 10px;
+  display: inline;
+}
+.AboveHeader {
+  text-align: center;
+  display: inline-block;
+}
+#FolderSelectForm {
+  display: inline;
+}
+#FolderSelect {
+  background-color: $background-color;
+  color: $text-color;
+  border: none;
+  outline: none;
+}
+.AddFolderButton {
+  background-color: teal;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  display: flexbox;
+
+  > .material-icons {
+    font-size: 12px;
+    display: flex;
+    justify-self: center;
+    align-self: center;
+  }
+}
+.form-popup {
+  text-align: center;
+  align-content: center;
+  justify-content: center;
+  display: flex;
+}
+#form-container {
+  width: 15%;
+}
+.grid-container {
+  padding-top: 5rem;
+  padding-right: 5rem;
+  padding-left: 5rem;
+  display: grid;
+  grid-template-columns: repeat(7, 8rem);
+  grid-template-rows: repeat(4, 8rem);
+  float: left;
+  grid-gap: 1rem;
+  margin-bottom: 1rem;
+}
+@mixin BaseScriptButton {
+  font-size: 1.5rem;
+  padding: 2rem;
+  border-radius: 12px;
+  outline: none;
+  width: 128px;
+  height: 128px;
+}
+@mixin ActiveScriptButton {
+  background-color: $active-background-color;
+  border: 2px solid $active-background-color;
+  box-shadow: 0 0px 3px 0 $active-text-color, 0 4px 5px 0 teal;
+}
+.ScriptButton {
+  @include BaseScriptButton();
+  background-color: rgb(56, 54, 54);
+  color: $text-color;
+  border: 2px solid rgb(56, 54, 54);
+  box-shadow: 0 0px 3px 0 $active-text-color, 0 4px 5px 0 teal;
+
+  :hover {
+    @include ActiveScriptButton();
+    color: $active-text-color;
+  }
+
+  :active {
+    @include ActiveScriptButton();
+    transform: translateY(2px);
+  }
+
+  .active {
+    @include ActiveScriptButton();
+  }
+}
+@mixin ButtonBase {
+  background-color: black;
+  outline: none;
+  border: none;
+}
+.SettingButton {
+  @include ButtonBase();
+}
+.headerbutton {
+  @include ButtonBase();
+}
+.material-icons {
+  color: white;
+  font-size: 30px;
+
+  .md-128 {
+    font-size: 128px;
+  }
+  .md-24 {
+    font-size: 24px;
+  }
+  .md-12 {
+    font-size: 12px;
+  }
+}
+@mixin BaseBorder($direction) {
+  border-#{$direction}-color: $border-color;
+  border-#{$direction}-style: solid;
+  border-#{$direction}-width: 1px;
+}
+.SideBar {
+  @include BaseBorder(left);
+  padding-left: 5px;
+  overflow: hidden;
+  height: 100%;
+}
+.TopSideBar {
+  @include BaseBorder(bottom);
+  padding: 10px;
+}
+.InputDiv {
+  display: inline-block;
+  margin-left: 1rem;
+  width: 70%;
+}
+Input {
+  display: block;
+  margin-bottom: 1rem;
+  background-color: $background-color;
+  border-right: none;
+  border-left: none;
+  border-top: none;
+  border-bottom: 1px solid lightgray;
+  color: white;
+  outline: none;
+  width: 100%;
+}
+.SelectScriptButton {
+  display: inline;
+}
+.Link {
+  float: right;
+}
+.PreviewScriptButton {
+  display: inline-block;
+  text-align: center;
+  font-size: 1.5rem;
+  background-color: $button-background-color;
+  border-radius: 12px;
+  border: 2px solid $button-background-color;
+  box-shadow: 0 0px 3px 0 $active-text-color, 0 4px 5px 0 teal;
+  outline: none;
+  color: teal;
+  padding: 2rem;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  width: 64px;
+  height: 64px;
+}
+.openScriptFolder {
+  border: none;
+  border-radius: 8px;
+  outline: none;
+  text-align: center;
+  background-color: $button-background-color;
+  color: $text-color;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  margin-left: 5px;
+}
+.rainbowtext {
+  animation: rainbow 5s linear 0s infinite;
+}
+
+@keyframes rainbow {
+  from {
+    color: #6666ff;
+  }
+  10% {
+    color: #0099ff;
+  }
+  50% {
+    color: #00ff00;
+  }
+  75% {
+    color: #ff3399;
+  }
+  100% {
+    color: #6666ff;
+  }
+}
