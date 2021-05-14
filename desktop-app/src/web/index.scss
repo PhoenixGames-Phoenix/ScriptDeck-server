@@ -46,7 +46,6 @@ body {
   display: flexbox;
 
   > .material-icons {
-    font-size: 12px;
     display: flex;
     justify-self: center;
     align-self: center;
@@ -92,17 +91,17 @@ body {
   border: 2px solid rgb(56, 54, 54);
   box-shadow: 0 0px 3px 0 $active-text-color, 0 4px 5px 0 teal;
 
-  :hover {
+  &:hover {
     @include ActiveScriptButton();
     color: $active-text-color;
   }
 
-  :active {
+  &:active {
     @include ActiveScriptButton();
     transform: translateY(2px);
   }
 
-  .active {
+  &.active {
     @include ActiveScriptButton();
   }
 }
@@ -121,13 +120,13 @@ body {
   color: white;
   font-size: 30px;
 
-  .md-128 {
+  &.md-128 {
     font-size: 128px;
   }
-  .md-24 {
+  &.md-24 {
     font-size: 24px;
   }
-  .md-12 {
+  &.md-12 {
     font-size: 12px;
   }
 }
