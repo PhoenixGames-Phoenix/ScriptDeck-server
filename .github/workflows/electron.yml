@@ -32,7 +32,7 @@ jobs:
           node-version: 14
 
       - name: Build SCSS
-        run: npm run scss
+        run: npx sass ./src/web/index.scss ./src/web/index.css
 
       - name: Build electron App
         uses: samuelmeuli/action-electron-builder@v1
