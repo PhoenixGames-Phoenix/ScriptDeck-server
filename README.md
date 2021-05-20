@@ -10,11 +10,13 @@
 [![Discord](https://img.shields.io/discord/396281837875625986?label=discord)](https://discord.gg/gTwuaHW)
 [![Electron Build](https://github.com/PhoenixGames-Phoenix/ScriptDeck/actions/workflows/electron.yml/badge.svg)](https://github.com/PhoenixGames-Phoenix/ScriptDeck/actions/workflows/electron.yml)
 
-ScriptDeck is a way to execute preconfigured functions on your machine from any device with a browser in your local network. Downloads [here](https://github.com/PhoenixGames-Phoenix/ScriptDeck/releases/latest).
+ScriptDeck is a way to execute preconfigured functions on your machine from any device with a browser in your local network. Downloads [here](https://github.com/ixbinphoenix/ScriptDeck/releases/latest).
+
+⚠ **If you have cloned this repository before the 20th of May 2021, please update the git remote to the new Username**
 
 ## WIP
 
-This Project is still Work In Progess. You can help out by opening pull requests, reporting bugs using issues or sending suggestions on my [discord server](https://discord.gg/gTwuaHW). The current roadmap can be found [here](https://github.com/PhoenixGames-Phoenix/ScriptDeck/projects/1).
+This Project is still Work In Progess. You can help out by opening pull requests, reporting bugs using issues or sending suggestions on my [discord server](https://discord.gg/gTwuaHW). The current roadmap can be found [here](https://github.com/ixhbinphoenix/ScriptDeck/projects/1).
 
 ## Development Setup (desktop-app)
 
@@ -23,7 +25,7 @@ Prerequisites:
 - [git](https://git-scm.com/)
 - [Node.js 14](https://nodejs.org/en/download/)
 
-1. Clone the git repository using `git clone https://github.com/PhoenixGames-Phoenix/ScriptDeck`
+1. Clone the git repository using `git clone https://github.com/ixhbinphoenix/ScriptDeck`
 2. Run `npm i` in the desktop-app directory to install the required dependencies
 3. For starting the desktop app use `npm run scss && (npx) electron .`
 4. For building run `npm run scss && (npx) electron-builder --<windows | linux> -c electron_builder.yml`
