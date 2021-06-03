@@ -26,7 +26,7 @@
     "ws": "^7.4.6"
   },
   "devDependencies": {
-    "electron": "13.0.1",
+    "electron": "13.1.0",
     "electron-builder": "^22.11.3",
     "jsdoc": "^3.6.7",
     "sass": "^1.34.0"
