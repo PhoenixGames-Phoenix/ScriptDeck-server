@@ -66,5 +66,7 @@ function start(paths) {
   })
 }
 const paths = [`${this.globalPath}/scripts/`, `${this.globalPath}/plugins/`];
-start(paths);
+app.on("ready", () => {
+  start(paths);
+}) 
 

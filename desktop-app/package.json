@@ -9,13 +9,13 @@
   },
   "keywords": [],
   "author": {
-    "name": "PhoenixGames-Phoenix",
-    "email": "47122082+PhoenixGames-Phoenix@users.noreply.github.com"
+    "name": "ixhbinphoenix",
+    "email": "47122082+ixhbinphoenix@users.noreply.github.com"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/PhoenixGames-Phoenix/ScriptDeck.git"
+    "url": "https://github.com/ixhbinphoenix/ScriptDeck.git"
   },
   "config": {},
   "dependencies": {
@@ -26,6 +26,9 @@
     "ws": "^7.4.6"
   },
   "devDependencies": {
+    "@types/express": "^4.17.12",
+    "@types/node": "^15.12.1",
+    "@types/ws": "^7.4.4",
     "electron": "13.1.0",
     "electron-builder": "^22.11.3",
     "jsdoc": "^3.6.7",
