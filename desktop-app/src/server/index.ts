@@ -91,6 +91,8 @@ module.exports.start = function(): void {
         }
         return true;
     }
+    
+    // Plugin IntelliSense not possible yet, still have to think of a new way to do it.
     let pluginsDir: string[], plugins: Map<string, any>;
 
     function loadPlugins() {

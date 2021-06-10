@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "electron .",
-    "scss": "sass ./src/web/index.scss ./src/web/index.css"
+    "build": "sass ./src/web/index.scss ./src/web/index.css && tsc"
   },
   "keywords": [],
   "author": {
@@ -21,11 +21,13 @@
   "dependencies": {
     "electron-localshortcut": "^3.2.1",
     "express": "^4.17.1",
+    "lmify": "^0.3.0",
     "npmi": "^4.0.0",
     "open": "^8.2.0",
     "ws": "^7.4.6"
   },
   "devDependencies": {
+    "@types/electron-localshortcut": "^3.1.0",
     "@types/express": "^4.17.12",
     "@types/node": "^15.12.1",
     "@types/ws": "^7.4.4",

@@ -1,4 +1,4 @@
-import { API } from '../server/index_new';
+import { API } from '../server';
 
 export interface Button {
     pos: string,
