@@ -23,7 +23,7 @@
     "express": "^4.17.1",
     "npmi": "^4.0.0",
     "open": "^8.2.0",
-    "ws": "^7.4.6"
+    "ws": "^7.5.0"
   },
   "devDependencies": {
     "electron": "13.1.2",
