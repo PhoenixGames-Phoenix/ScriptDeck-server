@@ -22,7 +22,7 @@
     "electron-localshortcut": "^3.2.1",
     "express": "^4.17.1",
     "npmi": "^4.0.0",
-    "open": "^8.2.0",
+    "open": "^8.2.1",
     "ws": "^7.5.1"
   },
   "devDependencies": {
