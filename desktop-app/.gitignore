@@ -1,4 +1,6 @@
-data/
+src/index.js
+src/lib/Interfaces.js
+src/server/index.js
 bin/
 
 # Logs

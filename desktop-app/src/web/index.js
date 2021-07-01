@@ -28,8 +28,8 @@ cfgws.onopen = (event) => {
     fetch("http://localhost:4654/scripts").then((response) => {
         response.text().then((json) => {
             let obj = JSON.parse(json);
-            for (let i = 0; i < obj.length; i++) {
-                const element = obj[i];
+            for (let i = 0; i < obj.list.length; i++) {
+                const element = obj.list[i];
                 var item = document.createElement("p");
                 item.setAttribute("class", "sciptListItem");
                 item.innerHTML = '<i class="material-icons md-24" style="padding-left: 10px; padding-right: 10px;">extension</i>' + element + ' (<a class="link" href="src.html?script=' + element + '">Source</a>)';

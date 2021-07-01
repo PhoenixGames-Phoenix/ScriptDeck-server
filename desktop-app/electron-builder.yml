@@ -16,10 +16,11 @@ nsis:
   perMachine: false
   allowElevation: true
   allowToChangeInstallationDirectory: true
+  license: ../LICENSE
 
 linux:
   target:
-    - target: AppImage
+    - target: tar.gz
       arch:
         - x64
     - target: deb
