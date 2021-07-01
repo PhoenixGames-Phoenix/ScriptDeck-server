@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "electron .",
-    "build": "sass ./src/web/index.scss ./src/web/index.css && tsc"
+    "build": "npx sass ./src/web/index.scss ./src/web/index.css && npx tsc"
   },
   "keywords": [],
   "author": {
