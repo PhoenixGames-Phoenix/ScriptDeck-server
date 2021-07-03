@@ -30,6 +30,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 14
+          
+      - name: Install Dependencies
+        run: npm i
 
       - name: Build SCSS & Typescript
         run: npm run build
