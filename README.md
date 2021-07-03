@@ -14,9 +14,9 @@ ScriptDeck is a way to execute preconfigured functions on your machine from any 
 
 ⚠ **If you have cloned this repository before the 20th of May 2021, please update the git remote to the new Username**
 
-## WIP
+## Addons
 
-This Project is still Work In Progess. You can help out by opening pull requests, reporting bugs using issues or sending suggestions on my [discord server](https://discord.gg/gTwuaHW). The current roadmap can be found [here](https://github.com/ixhbinphoenix/ScriptDeck/projects/1).
+A repository of official plugins & scripts can be found [here](https://github.com/ixhbinphoenix/sd-addons).
 
 ## Development Setup (desktop-app)
 
