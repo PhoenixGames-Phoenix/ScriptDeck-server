@@ -31,7 +31,7 @@
     "@types/fs-extra": "^9.0.11",
     "@types/node": "^15.12.1",
     "@types/ws": "^7.4.4",
-    "electron": "13.1.5",
+    "electron": "13.1.6",
     "electron-builder": "^22.11.3",
     "jsdoc": "^3.6.7",
     "sass": "^1.35.1"
